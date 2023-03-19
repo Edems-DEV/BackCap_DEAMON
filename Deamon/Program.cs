@@ -15,19 +15,24 @@ public class Program
         HttpClient client = new HttpClient();
         client.BaseAddress = new Uri("http://localhost:5056");
 
-        GetAddresses addresses = new GetAddresses();
-        List<string> ips = addresses.GetIpAddresses();
 
-
-        List<Job> jobs = new();   
-        foreach (string ip in ips)
+        while (true)
         {
-            jobs.Add(await client.GetFromJsonAsync<Job>("/api/Jobs/154.251.15.1/Daemon"));  // tady je ip adresa statická pro testování
-        } 
+            GetAddresses addresses = new GetAddresses();
+            List<string> ips = addresses.GetIpAddresses();
 
 
-        LogReport report = new LogReport();
+            List<Job> jobs = new();
+            foreach (string ip in ips)
+            {
+                jobs.Add(await client.GetFromJsonAsync<Job>("/api/Jobs/154.251.15.1/Daemon"));  // tady je ip adresa statická pro testování
+            }
 
-        report.SendReport();
+            //do jobs
+
+            LogReport report = new LogReport();
+
+            report.SendReport();
+        }
     }
 }
