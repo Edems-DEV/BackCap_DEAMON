@@ -1,10 +1,12 @@
 ﻿using Deamon.Communication;
 using Deamon.Models;
+using System.Net;
 using System.Net.Http.Json;
+using System.Text.RegularExpressions;
 
 namespace Deamon;
 
-internal class Program
+public class Program
 {
     static async Task Main(string[] args)
     {
@@ -13,17 +15,19 @@ internal class Program
         HttpClient client = new HttpClient();
         client.BaseAddress = new Uri("http://localhost:5056");
 
-        Job job = await client.GetFromJsonAsync<Job>("/api/Jobs/154.251.15.1/Daemon");
-        Console.WriteLine(job.Id);
-        Console.WriteLine(job.Config.Id);
-        Console.WriteLine(job.Config.Sources[0].Id);
-        Console.WriteLine(job.Config.Destinations[0].Id);
-        
+        GetAddresses addresses = new GetAddresses();
+        List<string> ips = addresses.GetIpAddresses();
 
-        GetJob getJob = new GetJob();
+
+        List<Job> jobs = new();   
+        foreach (string ip in ips)
+        {
+            jobs.Add(await client.GetFromJsonAsync<Job>("/api/Jobs/154.251.15.1/Daemon"));  // tady je ip adresa statická pro testování
+        } 
+
+
         LogReport report = new LogReport();
 
-        getJob.getJob();
         report.SendReport();
     }
 }
