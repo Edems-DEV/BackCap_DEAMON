@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Deamon.Communication;
 internal class LogReport
 {
-    public void SendReport(/*info*/)
+    public void SendReport(string message)
     {
         //poslaní zprávy
     }

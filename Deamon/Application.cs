@@ -32,8 +32,9 @@ public class Application
             foreach (Job job in jobs)
             {
                 jobtype = getJobs.GetJobTypes(job);
-                string message = jobtype.Start(job.Config);
-                //pošle report
+                string message = await jobtype.Start(job.Config);
+                LogReport report = new LogReport();
+                report.SendReport(message);
             }
 
 
