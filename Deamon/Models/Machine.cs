@@ -7,9 +7,7 @@ using System.Threading.Tasks;
 namespace Deamon.Models;
 internal class Machine
 {
-    public string Name { get; set; } //windows name of Pc
-    public string Os { get; set; } //del?
-    public string Ip { get; set; } // server will see it (should i still send it?)
+    public string Name { get; set; }
+    public string Os { get; set; }
+    public string Ip { get; set; }
 }
-
-// Only on init

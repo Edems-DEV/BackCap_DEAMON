@@ -7,8 +7,11 @@ using System.Threading.Tasks;
 namespace Deamon.Models;
 public class Log
 {
+    public int Id { get; set; }
+
     public string Message { get; set; }
+
     public DateTime Time { get; set; }
-    //---
-    public int Status { get; set; } //here?
+
+    public int Status { get; set; }
 }
