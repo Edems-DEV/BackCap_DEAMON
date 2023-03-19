@@ -33,6 +33,7 @@ public class Application
             {
                 jobtype = getJobs.GetJobTypes(job);
                 string message = jobtype.Start(job.Config);
+                //pošle report
             }
 
 
