@@ -12,6 +12,6 @@ public class Program
     static async Task Main(string[] args)
     {
         Application application = new Application();
-        application.Run();
+        await application.Run();
     }
 }

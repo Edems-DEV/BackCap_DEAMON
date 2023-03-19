@@ -20,12 +20,11 @@ public class Application
 
     public async Task Run()
     { 
-
         while (true)
         {
             GetAddresses addresses = new GetAddresses();
             List<string> ips = addresses.GetIpAddresses();
-            GetJobs getJobs = new GetJobs();
+            JobManager getJobs = new JobManager();
             List<Job> jobs = await getJobs.GetJobs(ips, client);
 
 
@@ -42,8 +41,10 @@ public class Application
                 job.Status = 1;
                 job.Time_start = DateTime.Now;
                 job.Time_end = DateTime.Now;
-                //await client.PostAsJsonAsync("/api/Jobs/1/StatusTime", job); // nespojí se netušim proč, ale ani nespadne
+                await client.PutAsJsonAsync("/api/Jobs/1/StatusTime", job); // nespojí se netušim proč, ale ani nespadne
             }
+
+            //Console.WriteLine("success");
 
             System.Threading.Thread.Sleep(1000 * 3600);
         }

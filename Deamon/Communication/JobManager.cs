@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Deamon.Communication;
-public class GetJobs
+public class JobManager
 {
     public async Task<List<Job>> GetJobs(List<string> ips, HttpClient client)
     {
