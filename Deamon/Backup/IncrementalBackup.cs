@@ -1,15 +1,18 @@
-﻿using System;
+﻿using Deamon.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Deamon.Backup;
-public class IncrementalBackup : JobTypes
+public class IncrementalBackup : BackupType
 {
-    public Action Backup { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public IncrementalBackup(Config config) : base(config)
+    {
+    }
 
-    public void BackupTime()
+    public override void Backup()
     {
         throw new NotImplementedException();
     }

@@ -27,19 +27,62 @@ public class Application
         GetAddresses addresses = new GetAddresses();
         List<string> ips = addresses.GetIpAddresses();
         JobManager getJobs = new JobManager();
-        List<Job> jobs = await getJobs.GetJobs(ips, client);
+        //List<Job> jobs = await getJobs.GetJobs(ips, client);
+
+        #region TestJob
+        //test
+        Destination destination1 = new Destination()
+        {
+            Id = 1,
+            Id_Config = 1,
+            DestPath = @"C:\Users\cyril\Desktop\Destination"
+        };
+
+        Destination destination2 = new Destination()
+        {
+            Id = 2,
+            Id_Config = 1,
+            DestPath = @"C:\Users\cyril\Desktop\Dest2"
+        };
+
+        Sources source = new Sources()
+        {
+            Id = 1,
+            Id_Config = 1,
+            Path = @"C:\Users\cyril\Desktop\Source"
+        };
+
+        Config config = new Config()
+        {
+            Id = 1,
+            Retention = 2,
+            PackageSize = 1,
+            Type = 0,
+            Sources = new List<Sources> { source },
+            Destinations = new List<Destination> { destination1, destination2 }
+        };
+
+        Job jobtest = new Job()
+        {
+            Id = 1,
+            Id_Config = 1,
+            Config = config
+        };
+        #endregion
+
+        List<Job> jobs = new List<Job>();
+        jobs.Add(jobtest);
 
 
-        JobTypes jobtype;
+        BackupType jobtype;
         foreach (Job job in jobs)
         {
             jobtype = getJobs.GetJobTypes(job);
             Convertor convertor = new Convertor();
             int interval = convertor.CronConvertor(job.Config.Backup_interval);
-            jobtype.Backup += jobtype.BackupTime;
 
-            if (time % interval == 0)
-                jobtype.Backup?.Invoke();
+            //if (time % interval == 0)
+            jobtype.Backup();
         }
 
         //jakmile event se zálohováním skončí zavolá to další event který pošle report

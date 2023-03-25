@@ -17,34 +17,34 @@ public class JobManager
 
         foreach (string ip in ips)
         {
-            jobs.Add(await client.GetFromJsonAsync<Job>("/api/Jobs/154.251.15.1/Daemon"));  // tady je ip adresa statická pro testování
+            jobs.Add(await client.GetFromJsonAsync<Job>("/api/Jobs/7/Machine"));  // tady je ip adresa statická pro testování
         }
 
         return jobs;
     }
 
-    public JobTypes GetJobTypes(Job job)
+    public BackupType GetJobTypes(Job job)
     {
         switch (job.Config.Type)
         {
             case 1:
                 {
-                    return new FullBackup();
+                    return new FullBackup(job.Config);
                 }
 
             case 2:
                 {
-                    return new DiferencialBackup();
+                    return new DiferencialBackup(job.Config);
                 }
 
             case 3:
                 {
-                    return new IncrementalBackup();
+                    return new IncrementalBackup(job.Config);
                 }
 
             default:
                 {
-                    return new FullBackup();
+                    return new FullBackup(job.Config);
                 }
         }
     }
