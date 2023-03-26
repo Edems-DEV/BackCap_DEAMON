@@ -8,7 +8,7 @@ namespace Deamon.Services;
 public class Retencion
 {
     private int retencion;
-    private int rackageLimit;
+    private int packageLimit;
     private string path;
     private List<string> data = new List<string>();
 
@@ -18,7 +18,7 @@ public class Retencion
         this.path = workingDirectory + $"/{id}_{destinationId}.txt";
 
         this.retencion = retencion;
-        this.rackageLimit = packageLimit;
+        this.packageLimit = packageLimit;
 
         if (!File.Exists(this.path))
         {
@@ -61,4 +61,29 @@ public class Retencion
         }
     }
     #endregion
+
+    public void ReadRetencion()
+    {
+        using (StreamReader reader = new StreamReader(this.path))
+        {
+            while (!reader.EndOfStream)
+            {
+                this.data.Add(reader.ReadLine());
+            }
+
+            if (retencion * packageLimit == data.Count)
+            {
+                for (int i = 0; i < data.Count / 2; i++)
+                {
+                    Directory.Delete(data[i], true);
+                    data.RemoveAt(i);
+                }
+            }
+        }
+    }
+
+    public void WriteRetencion()
+    {
+
+    }
 }
