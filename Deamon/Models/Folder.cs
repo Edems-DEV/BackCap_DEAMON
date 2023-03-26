@@ -13,6 +13,8 @@ public class Folder
     }
 
     public string Name { get; set; }
+    public string SourcePath { get; set; }  
+
     public List<Record> files = new List<Record>();
     public List<Folder> folders = new List<Folder>();
 

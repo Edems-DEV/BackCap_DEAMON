@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Deamon.Services;
 public class JsonConvertor
 {
-    public Folder CreateJson(string sourceDir, Folder folderList)
+    public Folder CreateStructrue(string sourceDir, Folder folderList)
     {
         var sourceInfo = new DirectoryInfo(sourceDir);
 
@@ -17,7 +17,7 @@ public class JsonConvertor
             if (sourceSubInfo.Attributes.HasFlag(FileAttributes.Directory))
             {
                 folderList.folders.Add(new Folder(sourceSubInfo.Name));
-                CreateJson(sourceSubInfo.FullName, folderList.folders[folderList.folders.Count - 1]);
+                CreateStructrue(sourceSubInfo.FullName, folderList.folders[folderList.folders.Count - 1]);
             }
             else
             {

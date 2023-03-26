@@ -102,13 +102,20 @@ public class Application
             Path = @"C:\Users\cyril\Desktop\Source"
         };
 
+        Sources source2 = new Sources()
+        {
+            Id = 2,
+            Id_Config = 1,
+            Path = @"C:\Users\cyril\Desktop\Source2"
+        };
+
         Config config = new Config()
         {
             Id = 1,
             Retention = 2,
             PackageSize = 1,
-            Type = 0,
-            Sources = new List<Sources> { source },
+            Type = 1,
+            Sources = new List<Sources> { source, source2 },
             Destinations = new List<Destination> { destination1, destination2 }
         };
 

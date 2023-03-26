@@ -16,7 +16,7 @@ public class FullBackup : BackupType
             Retencion retencion = new(Config.Id, destination.Id, 2, 5);
             retencion.FullReadRetancion();
 
-            foreach (DirectoryInfo sourcePath in SourceList)
+            foreach (DirectoryInfo sourcePath in SourceList) // zkontrolovat jestli nevzniknou kolize
             {
                 destinationPath = Path.Combine(destItem.ToString(), $"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}" /* zde může být jakýkoli název (př: backup_24.1.2004)*/);
 
