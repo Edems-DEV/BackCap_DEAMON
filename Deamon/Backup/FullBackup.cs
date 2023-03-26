@@ -13,7 +13,7 @@ public class FullBackup : BackupType
         foreach (Destination destination in Config.Destinations)
         {
             DirectoryInfo destItem = new DirectoryInfo(destination.DestPath);
-            Retencion retencion = new(Config.Id, destination.Id, 2, 5);
+            Retencion retencion = new(Config.Id, destination.Id, Config.Retention, Config.PackageSize);
             retencion.FullReadRetancion();
 
             foreach (DirectoryInfo sourcePath in SourceList) // zkontrolovat jestli nevzniknou kolize
@@ -34,7 +34,7 @@ public class FullBackup : BackupType
                     File.Copy(sourcePath.ToString(), destinationPath, true);
                 }
             }
-            retencion.FullWriteRetencion(destinationPath);
+            retencion.WriteRetencion(destinationPath);
         }
     }
 }

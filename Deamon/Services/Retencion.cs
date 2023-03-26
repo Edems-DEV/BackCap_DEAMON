@@ -49,7 +49,7 @@ public class Retencion
 
     }
 
-    public void FullWriteRetencion(string path)
+    public void WriteRetencion(string path)
     {
         using (StreamWriter writer = new(this.path))
         {
@@ -71,19 +71,17 @@ public class Retencion
                 this.data.Add(reader.ReadLine());
             }
 
+
+
             if (retencion * packageLimit == data.Count)
             {
-                for (int i = 0; i < data.Count / 2; i++)
+                int limit = data.Count;
+                for (int i = 0; i < limit / 2; i++)
                 {
-                    Directory.Delete(data[i], true);
-                    data.RemoveAt(i);
+                    Directory.Delete(data[0], true);
+                    data.RemoveAt(0);
                 }
             }
         }
-    }
-
-    public void WriteRetencion()
-    {
-
     }
 }

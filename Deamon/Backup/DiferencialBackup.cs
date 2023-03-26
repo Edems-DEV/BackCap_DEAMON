@@ -23,15 +23,19 @@ public class DiferencialBackup : BackupType
 
         if (!File.Exists(snapPath)) // prvotní záloha snap neexistuje
         {
-
             CopyManager copyManager = new CopyManager();
 
             foreach (Destination destination in Config.Destinations)
             {
+                string filepath = Path.Combine(destination.DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}");
+                Retencion retencion = new Retencion(Config.Id, destination.Id, Config.Retention, Config.PackageSize);
+                retencion.ReadRetencion();
+
                 foreach (Sources source in Config.Sources)
                 {
-                    copyManager.CopyDirectory(source.Path, Path.Combine(destination.DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}"));
+                    copyManager.CopyDirectory(source.Path, filepath);
                 }
+                retencion.WriteRetencion(filepath);
             }
 
             // vytvoření snapchotu
@@ -46,6 +50,9 @@ public class DiferencialBackup : BackupType
         {
             foreach (Destination destination in Config.Destinations)
             {
+                Retencion retencion = new Retencion(Config.Id, destination.Id, Config.Retention, Config.PackageSize);
+                retencion.ReadRetencion();
+
                 foreach (Sources source in Config.Sources)
                 {
                     Folder newDirectory = convert.CreateStructrue(new Folder("A", Config.Sources[0].Path));
@@ -76,7 +83,9 @@ public class DiferencialBackup : BackupType
 
                     if (different.Count == 0) // pokud nedlošlo k změně
                     {
-                        Directory.CreateDirectory(destination.DestPath + @$"\\backup_{DateTime.Now:yyyy_MM_dd_HHmmss}");
+                        string filepath = Path.Combine(destination.DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}");
+                        Directory.CreateDirectory(filepath);
+                        retencion.WriteRetencion(filepath);
                         return;
                     }
 
@@ -85,13 +94,11 @@ public class DiferencialBackup : BackupType
                         string result = path.Remove(0, SnapDirectory.SourcePath.Length);
                         string destpath = destination.DestPath + @$"\\backup_{DateTime.Now:yyyy_MM_dd_HHmmss}" + result;
 
-                        Console.WriteLine(destpath);
-
-                        if (Directory.Exists(path))
+                        if (Directory.Exists(path)) //kontrola zda je to složka
                         {
-                            Directory.CreateDirectory(destpath);
+                            Directory.CreateDirectory(destpath); //tvoření složky
                         }
-                        else
+                        else // kopírování filu a tvoření složek po cestě
                         {
                             string[] parts = destpath.Split(@"\");
                             string dirpath = string.Empty;

@@ -113,7 +113,7 @@ public class Application
         {
             Id = 1,
             Retention = 2,
-            PackageSize = 1,
+            PackageSize = 3,
             Type = 1,
             Sources = new List<Sources> { source, source2 },
             Destinations = new List<Destination> { destination1, destination2 }
