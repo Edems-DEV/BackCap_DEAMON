@@ -84,4 +84,9 @@ public class Retencion
             }
         }
     }
+
+    public string GetLastPath()
+    {
+        return data[data.Count - 1];
+    }
 }
