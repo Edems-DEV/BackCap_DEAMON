@@ -30,7 +30,7 @@ public class FullBackup : BackupType
                 }
                 else
                 {
-                    // It's a file, so copy it
+                    // přidat try catch
                     File.Copy(sourcePath.ToString(), destinationPath, true);
                 }
             }

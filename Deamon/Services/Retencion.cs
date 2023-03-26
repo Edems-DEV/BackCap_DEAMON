@@ -25,6 +25,7 @@ public class Retencion
             FileStream stream = File.Create(this.path);
             stream.Close();
         }
+
     }
 
     #region Full Backup retenion
@@ -42,6 +43,7 @@ public class Retencion
         if (retencion == data.Count)
         {
             Directory.Delete(data[0], true);
+            // jedno nastala chyba že se file odmítl smazat. Už jsem ji nezreplikoval. To Do try catch
             data.RemoveAt(0);
         }
 
