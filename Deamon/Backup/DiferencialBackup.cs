@@ -41,21 +41,41 @@ public class DiferencialBackup : BackupType
             // vytvoření snapchotu
             using (StreamWriter writer = new StreamWriter(snapPath))
             {
-                Folder snapDirectory = convert.CreateStructrue(new Folder("A", Config.Sources[0].Path)); //zatím jeden source poté bude brát kombinaci jsonu
-                string snapJson = JsonConvert.SerializeObject(snapDirectory, Formatting.Indented);
-                writer.WriteLine(snapJson);
+                List<string> jsons = new List<string>();
+
+                foreach (var item in Config.Sources)
+                {
+                    Folder snapDirectory = convert.CreateStructrue(new Folder("A", item.Path)); //zatím jeden source poté bude brát kombinaci jsonu
+                    string snapJson = JsonConvert.SerializeObject(snapDirectory, Formatting.Indented);
+                    jsons.Add(snapJson);
+                }
+
+                if (jsons.Count == 1)
+                    writer.WriteLine(jsons[0]);
+                else
+                {
+                    JsonCombiner combiner = new JsonCombiner();
+                    string combined = jsons[0];
+                    for (int i = 1; i < jsons.Count; i++)
+                    {
+                        combined = combiner.MergeFolders(combined, jsons[i]);
+                    }
+                    writer.WriteLine(combined);
+                }
+
             }
         }
         else //další záloha. Pokud již existuje snapchot
         {
             foreach (Destination destination in Config.Destinations)
             {
+                string filepath = Path.Combine(destination.DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}");
                 Retencion retencion = new Retencion(Config.Id, destination.Id, Config.Retention, Config.PackageSize);
                 retencion.ReadRetencion();
 
                 foreach (Sources source in Config.Sources)
                 {
-                    Folder newDirectory = convert.CreateStructrue(new Folder("A", Config.Sources[0].Path));
+                    Folder newDirectory = convert.CreateStructrue(new Folder("A", source.Path));
 
                     string snapJson = string.Empty;
                     using (StreamReader reader = new StreamReader(snapPath))
@@ -70,7 +90,6 @@ public class DiferencialBackup : BackupType
                     StructureComparator comparator = new StructureComparator();
                     List<string> snapPaths = comparator.GetAllPaths(SnapDirectory, new List<string>());
                     List<string> newPaths = comparator.GetAllPaths(newDirectory, new List<string>());
-
                     List<string> different = new List<string>();
 
                     foreach (string path in newPaths)
@@ -81,17 +100,16 @@ public class DiferencialBackup : BackupType
                         }
                     }
 
-                    if (different.Count == 0) // pokud nedlošlo k změně
+                    if (different.Count == 0 && !Directory.Exists(filepath)) // pokud nedlošlo k změně
                     {
-                        string filepath = Path.Combine(destination.DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}");
                         Directory.CreateDirectory(filepath);
                         retencion.WriteRetencion(filepath);
-                        return;
+                        continue;
                     }
 
                     foreach (string path in different)
                     {
-                        string result = path.Remove(0, SnapDirectory.SourcePath.Length);
+                        string result = path.Remove(0, source.Path.Length);
                         string destpath = destination.DestPath + @$"\\backup_{DateTime.Now:yyyy_MM_dd_HHmmss}" + result;
 
                         if (Directory.Exists(path)) //kontrola zda je to složka
@@ -113,10 +131,14 @@ public class DiferencialBackup : BackupType
                             File.Copy(path, destpath);
                         }
                     }
+
+                    retencion.WriteRetencion(filepath);
                 }
             }
 
         }
+
+
 
     }
 }
