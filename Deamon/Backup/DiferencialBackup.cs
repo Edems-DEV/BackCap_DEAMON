@@ -19,8 +19,6 @@ public class DiferencialBackup : BackupType
     {
         JsonConvertor convert = new JsonConvertor();
 
-        Folder folder = convert.CreateStructrue(Config.Sources[0].Path, new Folder("A"));
-
         //Folder A = convert.CreateStructrue(@"C:\Users\Uzivatel\OneDrive\Plocha\A", new Folder("A"));
 
         string snapPath = Directory.GetCurrentDirectory() + @$"\{Config.Id}_Snapshot.txt";
@@ -30,33 +28,31 @@ public class DiferencialBackup : BackupType
             // záloha
             using (StreamWriter writer = new StreamWriter(snapPath))
             {
-                Folder snapDirectory = convert.CreateStructrue(Config.Sources[0].Path, new Folder("A")); //zatím jeden source poté bude brát kombinaci jsonu
+                Folder snapDirectory = convert.CreateStructrue(new Folder("A", Config.Sources[0].Path)); //zatím jeden source poté bude brát kombinaci jsonu
                 string snapJson = JsonConvert.SerializeObject(snapDirectory, Formatting.Indented);
                 writer.WriteLine(snapJson);
             }
         }
         else //další záloha. Pokud již existuje snap 
         {
-            Folder newDirectory = convert.CreateStructrue(Config.Sources[0].Path, new Folder("A"));
+            Folder newDirectory = convert.CreateStructrue(new Folder("A", Config.Sources[0].Path));
             string newJson = JsonConvert.SerializeObject(newDirectory, Formatting.Indented);
 
-            Folder snapDirectory;
+            string snapJson = string.Empty;
             using (StreamReader reader = new StreamReader(snapPath))
             {
-                string snapJson = reader.ReadToEnd();
+                snapJson = reader.ReadToEnd();
 
                 JToken parsedJson = JToken.Parse(snapJson);
                 snapJson = parsedJson.ToString(Formatting.Indented);
-
-                snapDirectory = JsonConvert.DeserializeObject<Folder>(snapJson);
             }
 
-            if (newJson == JsonConvert.SerializeObject(snapDirectory, Formatting.Indented))
+            if (newJson == snapJson)
                 Console.WriteLine("Same");
             else
             {
-                Console.WriteLine("Different");
                 //tady bude ukládání
+                StructureComparator comparator = new StructureComparator();
             }
         }
 

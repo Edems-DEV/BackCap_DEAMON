@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 namespace Deamon.Models;
 public class Folder
 {
-    public Folder(string name)
+    public Folder(string name, string sourcePath)
     {
         this.Name = name;
+        this.SourcePath = sourcePath;
     }
 
     public string Name { get; set; }
