@@ -23,8 +23,10 @@ public class DiferencialBackup : BackupType
 
         string snapPath = Directory.GetCurrentDirectory() + @$"\{Config.Id}_Snapshot.txt";
 
-        if (File.Exists(snapPath)) // prvotní záloha snap neexistuje
+        if (!File.Exists(snapPath)) // prvotní záloha snap neexistuje
         {
+            CopyManager copyManager = new CopyManager();
+            copyManager.CopyDirectory(Config.Sources[0].Path, Path.Combine(Config.Destinations[0].DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}"));
             // záloha
             using (StreamWriter writer = new StreamWriter(snapPath))
             {
@@ -46,13 +48,58 @@ public class DiferencialBackup : BackupType
                 JToken parsedJson = JToken.Parse(snapJson);
                 snapJson = parsedJson.ToString(Formatting.Indented);
             }
+            Folder SnapDirectory = JsonConvert.DeserializeObject<Folder>(snapJson);
 
             if (newJson == snapJson)
-                Console.WriteLine("Same");
+                Directory.CreateDirectory(Path.Combine(Config.Destinations[0].DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}"));
             else
             {
                 //tady bude ukládání
                 StructureComparator comparator = new StructureComparator();
+                List<string> snapPaths = comparator.GetAllPaths(SnapDirectory, new List<string>());
+                List<string> newPaths = comparator.GetAllPaths(newDirectory, new List<string>());
+
+                List<string> different = new List<string>();
+
+                foreach (string path in newPaths)
+                {
+                    if (!snapPaths.Contains(path))
+                    {
+                        different.Add(path);
+                    }
+                }
+
+
+                foreach (Destination item in Config.Destinations)
+                {
+                    foreach (string path in different)
+                    {
+                        string result = path.Remove(0, SnapDirectory.SourcePath.Length);
+                        string destpath = item.DestPath + @$"\\backup_{DateTime.Now:yyyy_MM_dd_HHmmss}" + result;
+
+                        Console.WriteLine(destpath);
+
+                        if (Directory.Exists(path))
+                        {
+                            Directory.CreateDirectory(destpath);
+                        }
+                        else
+                        {
+                            string[] parts = destpath.Split(@"\");
+                            string dirpath = string.Empty;
+
+                            for (int i = 1; i < parts.Length - 1; i++)
+                            {
+                                dirpath += @"\" + parts[i];
+                            }
+
+                            Directory.CreateDirectory(dirpath);
+
+                            File.Copy(path, destpath);
+                        }
+                    }
+                }
+
             }
         }
 

@@ -8,19 +8,21 @@ using System.Threading.Tasks;
 namespace Deamon.Services;
 public class StructureComparator
 {
-    public List<string> GetDifferentPaths(Folder oldFolder, Folder newFolder)
+    public List<string> GetAllPaths(Folder folder, List<string> paths)
     {
-        List<string> paths = new List<string>();
-
-        foreach (var oldfolder in oldFolder.folders)
+        foreach (var item in folder.files)
         {
-            foreach (var newfolder in newFolder.folders)
-            {
-                if (oldfolder.SourcePath != newfolder.SourcePath)
-                {
-                    paths.Add(newfolder.SourcePath);
-                }
-            }
+            paths.Add(item.SourcePath);
         }
+
+        foreach (var item in folder.folders)
+        {
+            paths.Add(item.SourcePath);
+            GetAllPaths(item, paths);
+        }
+        
+        return paths;
+
+
     }
 }
