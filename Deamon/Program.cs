@@ -13,14 +13,21 @@ public class Program
 {
     static async Task Main(string[] args)
     {
-        Stopwatch sw = Stopwatch.StartNew();
         Application application = new Application();
-        application.Run(sw.ElapsedMilliseconds);
+        application.GetJobsToFile(null, null); // prvotní get dat
 
-        //while (true)
-        //{
-        //    await application.Run(sw.ElapsedMilliseconds);
-        //    System.Threading.Thread.Sleep(1000 * 3600);
-        //}
+        System.Timers.Timer timer = new System.Timers.Timer();
+        timer.Interval = 1000 * 60; //minuta
+        //každou minutu se zavolá event, který stáhne data ze serveru a uloží je do filu
+        //pokud by nebylo připojení/nějaký error. Tak se metoda pouze returne a do filu nic neuloží
+        timer.Elapsed += application.GetJobsToFile;
+        timer.AutoReset = true;
+        timer.Start();
+
+        while (true)
+        {
+            application.Run();
+            await Task.Delay(1000 * 10); //pauze 10 vteřin
+        }
     }
 }

@@ -1,10 +1,5 @@
 ﻿using Deamon.Models;
 using Deamon.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Deamon.Backup;
 public class FullBackup : BackupType
@@ -39,7 +34,7 @@ public class FullBackup : BackupType
                     File.Copy(sourcePath.ToString(), destinationPath, true);
                 }
             }
-            retencion.FullWriteRetancion(destinationPath);
+            retencion.FullWriteRetencion(destinationPath);
         }
     }
 }

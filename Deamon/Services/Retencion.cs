@@ -47,7 +47,7 @@ public class Retencion
 
     }
 
-    public void FullWriteRetancion(string path)
+    public void FullWriteRetencion(string path)
     {
         using (StreamWriter writer = new(this.path))
         {
