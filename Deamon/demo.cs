@@ -19,7 +19,7 @@ internal class demo
 //{
 //    static void Main(string[] args)
 //    {
-//        Backup bu = new IncrementalBackup(@"C:\Users\root\Desktop\Playground\Source", @"C:\Users\root\Desktop\Playground\Target", 2, 2);
+//        Backup bu = new IncrementalBackupTemp(@"C:\Users\root\Desktop\Playground\Source", @"C:\Users\root\Desktop\Playground\Target", 2, 2);
 //        bu.Run();
 //    }
 //}
@@ -53,10 +53,10 @@ internal class demo
 //    #endregion
 //}
 
-//public class FullBackup : Backup
+//public class FullBackupTemp : Backup
 //{
 
-//    public FullBackup(string sourceDir, string targetDir) : base(sourceDir, targetDir)
+//    public FullBackupTemp(string sourceDir, string targetDir) : base(sourceDir, targetDir)
 //    {
 //        type = "Full";
 //    }
@@ -109,13 +109,13 @@ internal class demo
 //    }
 //}
 
-//public class IncrementalBackup : Backup
+//public class IncrementalBackupTemp : Backup
 //{
 
 //    private readonly int maxPackageSize;
 //    private readonly int retentionDays;
 
-//    public IncrementalBackup(string sourceDir, string targetDir, int maxPackageSize, int retentionDays) : base(sourceDir, targetDir)
+//    public IncrementalBackupTemp(string sourceDir, string targetDir, int maxPackageSize, int retentionDays) : base(sourceDir, targetDir)
 //    {
 //        type = "Inc";
 

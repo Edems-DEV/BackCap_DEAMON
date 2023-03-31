@@ -12,28 +12,28 @@ using System.Threading.Tasks;
 namespace Deamon.Communication;
 public class JobManager
 {
-    public BackupType GetJobTypes(Job job)
+    public BackupTypeTemp GetJobTypes(Job job)
     {
         switch (job.Config.Type)
         {
             case 0:
                 {
-                    return new FullBackup(job.Config);
+                    return new FullBackupTemp(job.Config);
                 }
 
             case 1:
                 {
-                    return new DiferencialBackup(job.Config);
+                    return new DiferencialBackupTemp(job.Config);
                 }
 
             case 2:
                 {
-                    return new IncrementalBackup(job.Config);
+                    return new IncrementalBackupTemp(job.Config);
                 }
 
             default:
                 {
-                    return new FullBackup(job.Config);
+                    return new FullBackupTemp(job.Config);
                 }
         }
     }

@@ -62,7 +62,7 @@ public class Application
                 if (Backuping[job.Config.Id] == DateTime.Now)
                 {
                     JobManager getJobs = new JobManager();
-                    BackupType jobtype = getJobs.GetJobTypes(job);
+                    BackupTypeTemp jobtype = getJobs.GetJobTypes(job);
                     jobtype.Backup();
 
                     //po záloze znova navýšení času
@@ -133,7 +133,7 @@ public class Application
         foreach (Job job in jobstest)
         {
               JobManager getJobs = new JobManager();
-              BackupType jobtypetest = getJobs.GetJobTypes(job);
+              BackupTypeTemp jobtypetest = getJobs.GetJobTypes(job);
               jobtypetest.Backup();
         }
     }
