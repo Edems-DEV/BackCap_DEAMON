@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NCrontab;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,8 +10,7 @@ public class Convertor
 {
     public int CronConvertor(string interval)
     {
-        // to do
-        // vrátí milisekundy 
-        return 0;
+        var next = CrontabSchedule.Parse(interval).GetNextOccurrence(DateTime.Now);
+        return (int)next.Subtract(DateTime.Now).TotalMilliseconds;
     }
 }
