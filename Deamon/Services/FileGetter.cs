@@ -18,6 +18,12 @@ public class FileGetter
             FileStream filestream = File.Create(paths.JobsPath);
             filestream.Close();
         }
+
+        if (!File.Exists(paths.UsersPath))
+        {
+            FileStream fileStream = File.Create(paths.UsersPath);
+            fileStream.Close();
+        }
         
     }
 
@@ -66,11 +72,31 @@ public class FileGetter
     {
         Job job = new();
 
-        using(StreamReader sr = new StreamReader(this.paths.JobsPath))
+        using(StreamReader sr = new StreamReader(paths.JobsPath))
         {
             job = JsonConvert.DeserializeObject<Job>(sr.ReadToEnd());
         }
 
         return job;
+    }
+
+    public void SaveUsersToFile(string json)
+    {
+        using (StreamWriter sw = new StreamWriter(paths.UsersPath))
+        {
+            sw.WriteLine(json);
+        }
+    }
+
+    public List<User> GetUsersFromFile()
+    {
+        List<User> users = new List<User>();
+
+        using (StreamReader sr = new StreamReader(paths.UsersPath))
+        {
+            users = JsonConvert.DeserializeObject<List<User>>(sr.ReadToEnd());
+        }
+
+        return users;
     }
 }

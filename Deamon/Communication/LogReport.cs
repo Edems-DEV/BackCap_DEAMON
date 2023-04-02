@@ -20,8 +20,8 @@ public static class LogReport
         });
     }
 
-    public static void SendReport(string message)
+    public static void SendReport(object? sender, System.Timers.ElapsedEventArgs? e)
     {
-        //poslaní zprávy
+        
     }
 }

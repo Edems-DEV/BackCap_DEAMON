@@ -11,6 +11,7 @@ public class Paths
     public readonly string SnapchotNumberPath;
     public readonly string JobsPath;
     public readonly string IDPath;
+    public readonly string UsersPath;
     public readonly string ServerPath = $"/api/Jobs/Machine/";
 
     public Paths()
@@ -18,5 +19,6 @@ public class Paths
         SnapchotNumberPath = Path.Combine(RoamingPath, "SnapchotNumber.txt");
         JobsPath = Path.Combine(RoamingPath, "Jobs.txt");
         IDPath = Path.Combine(RoamingPath, "ID.txt");
+        UsersPath = Path.Combine(RoamingPath, "Users.txt");
     }
 }

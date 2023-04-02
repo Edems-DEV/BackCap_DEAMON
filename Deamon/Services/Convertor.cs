@@ -8,7 +8,12 @@ using System.Threading.Tasks;
 namespace Deamon.Services;
 public class Convertor
 {
-    public int CronConvertor(string interval)
+    public DateTime CronConvertorDateTime(string interval)
+    {
+        return CrontabSchedule.Parse(interval).GetNextOccurrence(DateTime.Now);
+    }
+
+    public int CronConvertorMiliseconds(string interval)
     {
         var next = CrontabSchedule.Parse(interval).GetNextOccurrence(DateTime.Now);
         return (int)next.Subtract(DateTime.Now).TotalMilliseconds;

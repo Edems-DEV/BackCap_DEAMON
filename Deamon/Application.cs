@@ -2,6 +2,7 @@
 using Deamon.Communication;
 using Deamon.Models;
 using Deamon.Services;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace Deamon;
 public class Application
 {
     private readonly HttpClient client = new HttpClient();
+    private FileGetter fileGetter = new FileGetter();
     private Paths paths = new();
 
     public Application()
@@ -20,9 +22,20 @@ public class Application
         client.BaseAddress = new Uri("http://localhost:5056/");
     }
 
+    public async void SendReport(object? sender, System.Timers.ElapsedEventArgs? e)
+    {
+        foreach (Log item in LogReport.Reports)
+        {
+            JsonConvert.SerializeObject(item, Formatting.Indented);
+
+            client.PostAsJsonAsync("/api/Logs", item);
+        }
+
+        LogReport.Reports.Clear();
+    }
+
     public async void GetJobsToFile(object? sender, System.Timers.ElapsedEventArgs? e)
     {
-        FileGetter fileGetter = new FileGetter();
         int? id = fileGetter.GetID();
 
         if (id == null)
@@ -64,13 +77,13 @@ public class Application
                 jobtype.Backup();
 
                 //po záloze znova navýšení času
-                Backuping[job.Config.Id] = DateTime.Now.AddMilliseconds(convertor.CronConvertor(job.Config.Backup_interval));
+                Backuping[job.Config.Id] = convertor.CronConvertorDateTime(job.Config.Backup_interval);
             }
         }
         else
         {
             // první inicializace pro nový config
-            DateTime interval = DateTime.Now.AddMilliseconds(convertor.CronConvertor(job.Config.Backup_interval)); // součet času teď a intervalu převedeného na milisekundy
+            DateTime interval = convertor.CronConvertorDateTime(job.Config.Backup_interval); // součet času teď a intervalu převedeného na milisekundy
             Backuping.Add(job.Config.Id, interval);
         }
 
