@@ -16,7 +16,7 @@ internal class Differencial : BackupType
         {
             using (StreamWriter sr = new StreamWriter(path))
             {
-                sr.WriteLine(json);
+                sr.Write(json);
             }
         }
         

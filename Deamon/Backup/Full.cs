@@ -13,6 +13,6 @@ internal class Full : BackupType
 
     public override void UpdateSnapchot(string json, string path)
     {
-        throw new NotImplementedException();
+        return;
     }
 }

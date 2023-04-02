@@ -55,6 +55,12 @@ public class JsonCombiner
 
     public string MergeJsons(string json1, string json2)
     {
+        if (json1 == string.Empty)
+            return json2;
+
+        if (json2 == string.Empty)
+            return json1;
+
         JObject obj1 = JObject.Parse(json1);
         JObject obj2 = JObject.Parse(json2);
 

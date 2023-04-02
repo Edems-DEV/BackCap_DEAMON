@@ -18,6 +18,7 @@ public class JobManager
         {
             case 0:
                 {
+                    job.Config.PackageSize = 1;
                     return new Full(job.Config);
                 }
 
@@ -33,6 +34,7 @@ public class JobManager
 
             default:
                 {
+                    job.Config.PackageSize = 1;
                     return new Full(job.Config);
                 }
         }

@@ -14,8 +14,7 @@ public class Retencion
 
     public Retencion(int id, int destinationId, int retencion, int packageLimit)
     {
-        string workingDirectory = Directory.GetCurrentDirectory();
-        this.path = workingDirectory + $"/{id}_{destinationId}.txt";
+        this.path = @$"C:\Users\cyril\AppData\Roaming\Retencion_{destinationId}.txt";
 
         this.retencion = retencion;
         this.packageLimit = packageLimit;
@@ -24,27 +23,6 @@ public class Retencion
         {
             FileStream stream = File.Create(this.path);
             stream.Close();
-        }
-
-    }
-
-    #region Full Backup retenion
-    public void FullReadRetancion()
-    {
-
-        using (StreamReader reader = new StreamReader(this.path))
-        {
-            while (!reader.EndOfStream)
-            {
-                this.data.Add(reader.ReadLine());
-            }
-        }
-
-        if (retencion == data.Count)
-        {
-            Directory.Delete(data[0], true);
-            // jedno nastala chyba že se file odmítl smazat. Už jsem ji nezreplikoval. To Do try catch
-            data.RemoveAt(0);
         }
 
     }
@@ -60,7 +38,6 @@ public class Retencion
             writer.WriteLine(path);
         }
     }
-    #endregion
 
     public void ReadRetencion()
     {
@@ -70,7 +47,6 @@ public class Retencion
             {
                 this.data.Add(reader.ReadLine());
             }
-
 
 
             if (retencion * packageLimit == data.Count)

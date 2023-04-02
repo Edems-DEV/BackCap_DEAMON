@@ -1,4 +1,5 @@
 ﻿using Deamon.Models;
+using Deamon.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,18 @@ internal class Inkremental : BackupType
 
     public override void UpdateSnapchot(string json, string path)
     {
-        throw new NotImplementedException();
+        string snapJson = string.Empty;
+        using (StreamReader sr = new StreamReader(path))
+        {
+            snapJson = sr.ReadToEnd();
+        }
+
+        JsonCombiner jsonCombiner = new JsonCombiner();
+        json = jsonCombiner.MergeJsons(json, snapJson);
+
+        using (StreamWriter sw = new StreamWriter(path))
+        {
+            sw.Write(json);
+        }
     }
 }

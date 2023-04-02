@@ -11,29 +11,51 @@ namespace Deamon.Backup;
 public abstract class BackupType
 {
     private protected Config config { get; set; }
-    private protected string retencionPath = @"C:\Users\Uzivatel\AppData\Roaming\Retencion.txt";
+    private protected string retencionPath = @"C:\Users\cyril\AppData\Roaming\Retencion_1.txt";
+    private protected string snapchotNumberPath = @"C:\Users\cyril\AppData\Roaming\SnapchotNumber.txt";
+    private int snapchotNumber = 0;
 
     public BackupType(Config config)
     {
         this.config = config;
+
+        // prvotní generace souborů // to do special třída na cesty // constanty
+        foreach (Destination destination in config.Destinations)
+        {
+            if (!File.Exists($@"C:\Users\cyril\AppData\Roaming\Retencion_{destination.Id}.txt"))
+            {
+                FileStream fileStream = File.Create($@"C:\Users\cyril\AppData\Roaming\Retencion_{destination.Id}.txt");
+                fileStream.Close();
+            }
+        }
+
+        if (!File.Exists(@"C:\Users\cyril\AppData\Roaming\SnapchotNumber.txt"))
+        {
+            FileStream fileStream = File.Create(@"C:\Users\cyril\AppData\Roaming\SnapchotNumber.txt");
+            fileStream.Close();
+
+            using (StreamWriter sw = new StreamWriter(@"C:\Users\cyril\AppData\Roaming\SnapchotNumber.txt"))
+            {
+                sw.Write(0.ToString());
+            }
+        }
+
     }
 
     public virtual void Backup()
     {
-        //kontrola snapshotu, vyřešit delete
-        (bool create, int snapshotCount) = CheckSnapshot();
-
-        string path = string.Empty;
-        if(create)
+        using (StreamReader rd = new StreamReader(snapchotNumberPath))
         {
-            path = $@"C:\Users\Uzivatel\AppData\Roaming\Snapchot_{snapshotCount}.txt";
+            snapchotNumber = Convert.ToInt32(rd.ReadLine());
+        }
+
+        string path = $@"C:\Users\cyril\AppData\Roaming\Snapchot_{snapchotNumber % config.Retention}.txt";
+        if (CheckSnapshot())
+        {
+            path = $@"C:\Users\cyril\AppData\Roaming\Snapchot_{snapchotNumber % config.Retention}.txt";
             FileStream fs = File.Create(path);
             fs.Close();
         }
-
-
-
-
 
 
         //načtení jsonu ze souboru
@@ -47,6 +69,8 @@ public abstract class BackupType
         foreach (Destination destiantion in config.Destinations)
         {
             string filepath = Path.Combine(destiantion.DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}");
+            Retencion retencion = new Retencion(config.Id, destiantion.Id, config.Retention, config.PackageSize);
+            retencion.ReadRetencion();
 
             foreach (Sources source in config.Sources)
             {
@@ -78,27 +102,23 @@ public abstract class BackupType
 
                 foreach (var item in different)
                 {
-                    string result = source.Path.Remove(0, source.Path.Length);
-                    string destpath = filepath + @"\" + result;
+                    string result = item.Remove(0, source.Path.Length);
+                    string destpath = filepath + result;
 
                     if (Directory.Exists(item))
                         Directory.CreateDirectory(destpath);
                     else
-                        File.Copy(item, destpath);
+                        File.Copy(item, destpath); // když existují dva stejné fily tak to spadně // to do try catch
                 }
             }
+
+            retencion.WriteRetencion(filepath);
         }
 
-
-
-        //backup -- záloha těch co nejsou v jsonu -- dodělat
-
-
-        // vytvoření jsonu pro každý source. A jejich následná kombinace do jednoho -přesunoto do metody
         UpdateSnapchot(SourceToJson(json), path);
     }
 
-    public virtual (bool,int) CheckSnapshot()
+    public virtual bool CheckSnapshot()
     {
         List<string> paths = new();
 
@@ -110,10 +130,14 @@ public abstract class BackupType
             }
         }
 
-        if (paths.Count % config.PackageSize == 0)
-            return (true, paths.Count / config.PackageSize);
+        if (paths.Count % config.PackageSize == 0 || paths.Count == 0)
+        {
+            this.snapchotNumber += 1;
+            UpdateSnapchotNumber();
+            return true;
+        }
 
-        return (false,0);
+        return false;
     }
        
     public abstract void UpdateSnapchot(string json,string path); // každá třída udělá update podle sebe. Full-Žádný, Diff-Update při prvnim, Inc-Sloučí
@@ -136,5 +160,11 @@ public abstract class BackupType
         return json;
     }
 
-    
+    private void UpdateSnapchotNumber()
+    {
+        using (StreamWriter wr = new StreamWriter(snapchotNumberPath))
+        {
+            wr.Write(snapchotNumber.ToString());
+        }
+    }
 }
