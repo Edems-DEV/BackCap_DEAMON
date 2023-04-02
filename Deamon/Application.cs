@@ -37,8 +37,7 @@ public class Application
         }
         catch (Exception)
         {
-            LogReport report = new LogReport();
-            report.AddReport("Nepovedlo se připojit k serveru. Daemon běží v offline režimu");
+            LogReport.AddReport("Nepovedlo se připojit k serveru. Daemon běží v offline režimu");
             return;
         }
 
