@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Deamon.Backup;
-internal class Differencial : BackupType
+public class Differencial : BackupType
 {
     public Differencial(Config config) : base(config) { }
 

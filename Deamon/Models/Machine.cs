@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Deamon.Models;
-internal class Machine
+public class Machine
 {
     public string Name { get; set; }
     public string Os { get; set; }

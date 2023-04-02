@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Deamon.Backup;
-internal class Full : BackupType
+public class Full : BackupType
 {
     public Full(Config config) : base(config) {}
 

@@ -79,24 +79,4 @@ public class FileGetter
 
         return job;
     }
-
-    public void SaveUsersToFile(string json)
-    {
-        using (StreamWriter sw = new StreamWriter(paths.UsersPath))
-        {
-            sw.WriteLine(json);
-        }
-    }
-
-    public List<User> GetUsersFromFile()
-    {
-        List<User> users = new List<User>();
-
-        using (StreamReader sr = new StreamReader(paths.UsersPath))
-        {
-            users = JsonConvert.DeserializeObject<List<User>>(sr.ReadToEnd());
-        }
-
-        return users;
-    }
 }

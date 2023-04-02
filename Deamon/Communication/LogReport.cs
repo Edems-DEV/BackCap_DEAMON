@@ -19,9 +19,4 @@ public static class LogReport
             Status = 1
         });
     }
-
-    public static void SendReport(object? sender, System.Timers.ElapsedEventArgs? e)
-    {
-        
-    }
 }
