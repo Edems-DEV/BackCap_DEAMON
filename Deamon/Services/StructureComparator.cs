@@ -10,6 +10,9 @@ public class StructureComparator
 {
     public List<string> GetAllPaths(Folder folder, List<string> paths)
     {
+        if(folder == null) 
+            return paths;
+
         foreach (var item in folder.files)
         {
             paths.Add(item.SourcePath);
