@@ -33,7 +33,7 @@ public class Application
         string json;
         try
         {
-            json = await client.GetStringAsync(paths.ServerPath + id);
+            json = await client.GetStringAsync($"/api/Jobs/Machine/{id}");
         }
         catch (Exception)
         {
@@ -48,35 +48,33 @@ public class Application
     public void Run()
     {
         FileGetter jobGetter = new FileGetter();
-        List<Job> jobs = jobGetter.GetJobsFromFile(); //getování jobů z filu
+        Job job = jobGetter.GetJobsFromFile(); //getování jobů z filu
         Dictionary<int, DateTime> Backuping = new Dictionary<int, DateTime>();
         Convertor convertor = new Convertor();
 
 
 
         //reálná verze -- neni otestovaná, nefunguje spojení se serverem
-        foreach (var job in jobs)
+        if (Backuping.ContainsKey(job.Config.Id))
         {
-            if (Backuping.ContainsKey(job.Config.Id))
+            // kontrola času v konfigu, jestli má zálohovat
+            if (Backuping[job.Config.Id] == DateTime.Now)
             {
-                // kontrola času v konfigu, jestli má zálohovat
-                if (Backuping[job.Config.Id] == DateTime.Now)
-                {
-                    JobManager getJobs = new JobManager();
-                    BackupType jobtype = getJobs.GetJobTypes(job);
-                    jobtype.Backup();
+                JobManager getJobs = new JobManager();
+                BackupType jobtype = getJobs.GetJobTypes(job);
+                jobtype.Backup();
 
-                    //po záloze znova navýšení času
-                    Backuping[job.Config.Id] = DateTime.Now.AddMilliseconds(convertor.CronConvertor(job.Config.Backup_interval));
-                }
-            }
-            else
-            {
-                // první inicializace pro nový config
-                DateTime interval = DateTime.Now.AddMilliseconds(convertor.CronConvertor(job.Config.Backup_interval)); // součet času teď a intervalu převedeného na milisekundy
-                Backuping.Add(job.Config.Id, interval);
+                //po záloze znova navýšení času
+                Backuping[job.Config.Id] = DateTime.Now.AddMilliseconds(convertor.CronConvertor(job.Config.Backup_interval));
             }
         }
+        else
+        {
+            // první inicializace pro nový config
+            DateTime interval = DateTime.Now.AddMilliseconds(convertor.CronConvertor(job.Config.Backup_interval)); // součet času teď a intervalu převedeného na milisekundy
+            Backuping.Add(job.Config.Id, interval);
+        }
+
 
 
         //testovací verze, bez získávání dat
@@ -86,36 +84,36 @@ public class Application
         {
             Id = 1,
             Id_Config = 1,
-            DestPath = @"C:\Users\Uzivatel\OneDrive\Plocha\B"
+            DestPath = @"C:\Users\cyril\Desktop\Destination"
         };
 
         Destination destination2 = new Destination()
         {
             Id = 2,
             Id_Config = 1,
-            DestPath = @"C:\Users\Uzivatel\OneDrive\Plocha\B2"
+            DestPath = @"C:\Users\cyril\Desktop\Dest2"
         };
 
         Sources source = new Sources()
         {
             Id = 1,
             Id_Config = 1,
-            Path = @"C:\Users\Uzivatel\OneDrive\Plocha\A"
+            Path = @"C:\Users\cyril\Desktop\Source"
         };
 
         Sources source2 = new Sources()
         {
             Id = 2,
             Id_Config = 1,
-            Path = @"C:\Users\Uzivatel\OneDrive\Plocha\A2"
+            Path = @"C:\Users\cyril\Desktop\Source2"
         };
 
         Config config = new Config()
         {
             Id = 1,
-            Retention = 1,
-            PackageSize = 5,
-            Type = 2,
+            Retention = 2,
+            PackageSize = 3,
+            Type = 1,
             Sources = new List<Sources> { source, source2 },
             Destinations = new List<Destination> { destination1, destination2 }
         };
@@ -128,15 +126,9 @@ public class Application
         };
         #endregion
 
-        List<Job> jobstest = new List<Job>();
-        jobstest.Add(jobtest);
-
-        foreach (Job job in jobstest)
-        {
-              JobManager getJobs = new JobManager();
-              BackupType jobtypetest = getJobs.GetJobTypes(job);
-              jobtypetest.Backup();
-        }
+        JobManager getJobsTest = new JobManager();
+        BackupType jobtypetest = getJobsTest.GetJobTypes(jobtest);
+        jobtypetest.Backup();
     }
 
 }

@@ -32,6 +32,14 @@ public class FileGetter
         if (!File.Exists(path))
         { 
             //vyvolej registraci přidam až s webem kde půjde potvrdit
+            FileStream stream = File.Create(path);
+            stream.Close();
+
+            using (StreamWriter sw = new StreamWriter(path))
+            {
+                sw.Write(7.ToString());
+            }
+
             return null;
         }
         else
@@ -61,18 +69,15 @@ public class FileGetter
         }
     }
 
-    public List<Job> GetJobsFromFile()
+    public Job GetJobsFromFile()
     {
-        List<Job> jobs = new();
+        Job job = new();
 
         using(StreamReader sr = new StreamReader(this.jobFilePath))
         {
-            while (!sr.EndOfStream)
-            {
-                jobs.Add(JsonConvert.DeserializeObject<Job>(sr.ReadLine()));
-            }
+            job = JsonConvert.DeserializeObject<Job>(sr.ReadToEnd());
         }
 
-        return jobs;
+        return job;
     }
 }
