@@ -5,9 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Deamon;
-internal class Paths
+public class Paths
 {
-    public const string SnapchotNumberPath = @"C:\Users\Uzivatel\AppData\Roaming\SnapchotNumber.txt";
-    public const string RoamingPath = $@"C:\Users\Uzivatel\AppData\Roaming";
-    public const string ServerPath = $"/api/Jobs/Machine/";
+    public readonly string RoamingPath = $@"C:\Users\cyril\AppData\Roaming";
+    public readonly string SnapchotNumberPath;
+    public readonly string JobsPath;
+    public readonly string IDPath;
+    public readonly string ServerPath = $"/api/Jobs/Machine/";
+
+    public Paths()
+    {
+        SnapchotNumberPath = Path.Combine(RoamingPath, "SnapchotNumber.txt");
+        JobsPath = Path.Combine(RoamingPath, "Jobs.txt");
+        IDPath = Path.Combine(RoamingPath, "ID.txt");
+    }
 }

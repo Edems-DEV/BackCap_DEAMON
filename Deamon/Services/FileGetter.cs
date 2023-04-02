@@ -9,16 +9,13 @@ using System.Threading.Tasks;
 namespace Deamon.Services;
 public class FileGetter
 {
-    private string jobFilePath;
+    private Paths paths = new Paths();
 
     public FileGetter()
     {
-        string pathPart = Directory.GetCurrentDirectory();
-        this.jobFilePath = Path.Combine(pathPart, "Jobs.txt");
-
-        if (!File.Exists(this.jobFilePath))
+        if (!File.Exists(paths.JobsPath))
         {
-            FileStream filestream = File.Create(this.jobFilePath);
+            FileStream filestream = File.Create(paths.JobsPath);
             filestream.Close();
         }
         
@@ -26,25 +23,21 @@ public class FileGetter
 
     public int? GetID()
     {
-        string pathPart = Directory.GetCurrentDirectory();
-        string path = Path.Combine(pathPart, "ID.txt");
-
-        if (!File.Exists(path))
+        if (!File.Exists(paths.IDPath))
         { 
-            //vyvolej registraci přidam až s webem kde půjde potvrdit
-            FileStream stream = File.Create(path);
+            FileStream stream = File.Create(paths.IDPath);
             stream.Close();
 
-            using (StreamWriter sw = new StreamWriter(path))
+            using (StreamWriter sw = new StreamWriter(paths.IDPath))
             {
-                sw.Write(7.ToString());
+                sw.Write(7.ToString()); // vytvoří file s ID 7. Zatím statické s funkčím webem doplním registraci
             }
 
             return null;
         }
         else
         {
-            using (StreamReader sr = new StreamReader(path))
+            using (StreamReader sr = new StreamReader(paths.IDPath))
             {
                 int ID;
                 try
@@ -53,7 +46,7 @@ public class FileGetter
                 }
                 catch (Exception)
                 {
-                    File.Delete(path);
+                    File.Delete(paths.IDPath);
                     return null;
                 }
                 return ID;
@@ -63,7 +56,7 @@ public class FileGetter
 
     public void SaveJobsToFile(string json)
     {
-        using(StreamWriter sw = new StreamWriter(jobFilePath))
+        using(StreamWriter sw = new StreamWriter(paths.JobsPath))
         {
             sw.WriteLine(json);
         }
@@ -73,7 +66,7 @@ public class FileGetter
     {
         Job job = new();
 
-        using(StreamReader sr = new StreamReader(this.jobFilePath))
+        using(StreamReader sr = new StreamReader(this.paths.JobsPath))
         {
             job = JsonConvert.DeserializeObject<Job>(sr.ReadToEnd());
         }

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Deamon.Backup;
-internal class Inkremental : BackupType
+public class Inkremental : BackupType
 {
     public Inkremental(Config config) : base(config) { }
 
