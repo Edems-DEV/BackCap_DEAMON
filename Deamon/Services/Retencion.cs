@@ -11,10 +11,11 @@ public class Retencion
     private int packageLimit;
     private string path;
     private List<string> data = new List<string>();
+    private Paths paths = new Paths();
 
     public Retencion(int id, int destinationId, int retencion, int packageLimit)
     {
-        this.path = @$"C:\Users\cyril\AppData\Roaming\Retencion_{destinationId}.txt";
+        this.path = paths.RoamingPath + @$"\Retencion_{destinationId}.txt";
 
         this.retencion = retencion;
         this.packageLimit = packageLimit;

@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Deamon.Communication;
-internal class LogReport
+public static class LogReport
 {
-    public List<Log> Reports { get; set; } = new List<Log>();
+    public static List<Log> Reports { get; set; } = new List<Log>();
 
-    public void AddReport(string message)
+    public static void AddReport(string message)
     {
         Reports.Add(new Log 
         {
@@ -20,7 +20,7 @@ internal class LogReport
         });
     }
 
-    public void SendReport(string message)
+    public static void SendReport(string message)
     {
         //poslaní zprávy
     }

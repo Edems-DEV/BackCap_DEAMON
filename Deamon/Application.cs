@@ -86,36 +86,36 @@ public class Application
         {
             Id = 1,
             Id_Config = 1,
-            DestPath = @"C:\Users\cyril\Desktop\Destination"
+            DestPath = @"C:\Users\Uzivatel\OneDrive\Plocha\B"
         };
 
         Destination destination2 = new Destination()
         {
             Id = 2,
             Id_Config = 1,
-            DestPath = @"C:\Users\cyril\Desktop\Dest2"
+            DestPath = @"C:\Users\Uzivatel\OneDrive\Plocha\B2"
         };
 
         Sources source = new Sources()
         {
             Id = 1,
             Id_Config = 1,
-            Path = @"C:\Users\cyril\Desktop\Source"
+            Path = @"C:\Users\Uzivatel\OneDrive\Plocha\A"
         };
 
         Sources source2 = new Sources()
         {
             Id = 2,
             Id_Config = 1,
-            Path = @"C:\Users\cyril\Desktop\Source2"
+            Path = @"C:\Users\Uzivatel\OneDrive\Plocha\A2"
         };
 
         Config config = new Config()
         {
             Id = 1,
-            Retention = 2,
-            PackageSize = 3,
-            Type = 0,
+            Retention = 1,
+            PackageSize = 5,
+            Type = 2,
             Sources = new List<Sources> { source, source2 },
             Destinations = new List<Destination> { destination1, destination2 }
         };

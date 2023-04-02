@@ -12,11 +12,10 @@ namespace Deamon.Backup;
 public abstract class BackupType
 {
     private protected Config config { get; set; }
-    private protected string retencionPath = @"C:\Users\cyril\AppData\Roaming\Retencion_1.txt";
-    private protected string snapchotNumberPath = @"C:\Users\cyril\AppData\Roaming\SnapchotNumber.txt";
+    private protected string retencionPath = @"C:\Users\Uzivatel\AppData\Roaming\Retencion_1.txt";
+    private protected string snapchotNumberPath = @"C:\Users\Uzivatel\AppData\Roaming\SnapchotNumber.txt";
     private int snapchotNumber = 0;
     private protected Paths paths = new Paths();
-    private protected LogReport report = new LogReport();   
 
     public BackupType(Config config)
     {
@@ -25,9 +24,9 @@ public abstract class BackupType
         // prvotní generace souborů // to do special třída na cesty // constanty
         foreach (Destination destination in config.Destinations)
         {
-            if (!File.Exists(paths.RoamingPath + $"Retencion_{destination.Id}.txt"))
+            if (!File.Exists(paths.RoamingPath + $@"\Retencion_{destination.Id}.txt"))
             {
-                FileStream fileStream = File.Create(paths.RoamingPath + $"Retencion_{destination.Id}.txt");
+                FileStream fileStream = File.Create(paths.RoamingPath + $@"\Retencion_{destination.Id}.txt");
                 fileStream.Close();
             }
         }
@@ -84,7 +83,7 @@ public abstract class BackupType
                 }
                 catch (Exception)
                 {
-                    report.AddReport("Vyskytl se problém s čtením souborů");
+                    LogReport.AddReport("Vyskytl se problém s čtením souborů");
                 }
                
 
@@ -94,7 +93,7 @@ public abstract class BackupType
                 }
                 catch (Exception)
                 {
-                    report.AddReport("Vyskytl se problém s kopírováním souborů");
+                    LogReport.AddReport("Vyskytl se problém s kopírováním souborů");
                 }
                 
             }
