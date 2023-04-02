@@ -1,4 +1,5 @@
-﻿using Deamon.Models;
+﻿using Deamon.Communication;
+using Deamon.Models;
 using Deamon.Services;
 using Newtonsoft.Json;
 using System;
@@ -14,6 +15,8 @@ public abstract class BackupType
     private protected string retencionPath = @"C:\Users\cyril\AppData\Roaming\Retencion_1.txt";
     private protected string snapchotNumberPath = @"C:\Users\cyril\AppData\Roaming\SnapchotNumber.txt";
     private int snapchotNumber = 0;
+    private protected Paths paths = new Paths();
+    private protected LogReport report = new LogReport();   
 
     public BackupType(Config config)
     {
@@ -22,19 +25,19 @@ public abstract class BackupType
         // prvotní generace souborů // to do special třída na cesty // constanty
         foreach (Destination destination in config.Destinations)
         {
-            if (!File.Exists($@"C:\Users\cyril\AppData\Roaming\Retencion_{destination.Id}.txt"))
+            if (!File.Exists(paths.RoamingPath + $"Retencion_{destination.Id}.txt"))
             {
-                FileStream fileStream = File.Create($@"C:\Users\cyril\AppData\Roaming\Retencion_{destination.Id}.txt");
+                FileStream fileStream = File.Create(paths.RoamingPath + $"Retencion_{destination.Id}.txt");
                 fileStream.Close();
             }
         }
 
-        if (!File.Exists(@"C:\Users\cyril\AppData\Roaming\SnapchotNumber.txt"))
+        if (!File.Exists(paths.SnapchotNumberPath))
         {
-            FileStream fileStream = File.Create(@"C:\Users\cyril\AppData\Roaming\SnapchotNumber.txt");
+            FileStream fileStream = File.Create(paths.SnapchotNumberPath);
             fileStream.Close();
 
-            using (StreamWriter sw = new StreamWriter(@"C:\Users\cyril\AppData\Roaming\SnapchotNumber.txt"))
+            using (StreamWriter sw = new StreamWriter(paths.SnapchotNumberPath))
             {
                 sw.Write(0.ToString());
             }
@@ -49,10 +52,10 @@ public abstract class BackupType
             snapchotNumber = Convert.ToInt32(rd.ReadLine());
         }
 
-        string path = $@"C:\Users\cyril\AppData\Roaming\Snapchot_{snapchotNumber % config.Retention}.txt";
+        string path = paths.RoamingPath + $"Snapchot_{snapchotNumber % config.Retention}.txt";
         if (CheckSnapshot())
         {
-            path = $@"C:\Users\cyril\AppData\Roaming\Snapchot_{snapchotNumber % config.Retention}.txt";
+            path = paths.RoamingPath + $"Snapchot_{snapchotNumber % config.Retention}.txt";
             FileStream fs = File.Create(path);
             fs.Close();
         }
@@ -74,48 +77,80 @@ public abstract class BackupType
 
             foreach (Sources source in config.Sources)
             {
-                JsonConvertor convert = new JsonConvertor();
-                Folder newDirectory = convert.CreateStructrue(new Folder("A", source.Path));
-
-                Folder SnapDirectory = JsonConvert.DeserializeObject<Folder>(json);
-
-
-                StructureComparator comparator = new StructureComparator();
-                List<string> snapPaths = comparator.GetAllPaths(SnapDirectory, new List<string>());
-                List<string> newPaths = comparator.GetAllPaths(newDirectory, new List<string>());
                 List<string> different = new List<string>();
-
-                foreach (string diffPath in newPaths)
+                try
                 {
-                    if (!snapPaths.Contains(diffPath))
-                    {
-                        different.Add(diffPath);
-                    }
+                    different = DirectoryRead(source, json);
                 }
-                different.Sort();
-
-                if(different.Count == 0)
+                catch (Exception)
                 {
-                    Directory.CreateDirectory(filepath);
-                    continue;
+                    report.AddReport("Vyskytl se problém s čtením souborů");
                 }
+               
 
-                foreach (var item in different)
+                try
                 {
-                    string result = item.Remove(0, source.Path.Length);
-                    string destpath = filepath + result;
-
-                    if (Directory.Exists(item))
-                        Directory.CreateDirectory(destpath);
-                    else
-                        File.Copy(item, destpath); // když existují dva stejné fily tak to spadně // to do try catch
+                    DirectoryCreate(filepath, different, source);
                 }
+                catch (Exception)
+                {
+                    report.AddReport("Vyskytl se problém s kopírováním souborů");
+                }
+                
             }
+
 
             retencion.WriteRetencion(filepath);
         }
 
         UpdateSnapchot(SourceToJson(json), path);
+    }
+
+    public void DirectoryCreate(string filepath, List<string> different, Sources source)
+    {
+        different.Sort();
+
+        if (different.Count == 0)
+        {
+            Directory.CreateDirectory(filepath);
+        }
+        else
+        {
+            foreach (var item in different)
+            {
+                string result = item.Remove(0, source.Path.Length);
+                string destpath = filepath + result;
+
+                if (Directory.Exists(item))
+                    Directory.CreateDirectory(destpath);
+                else
+                    File.Copy(item, destpath); // když existují dva stejné fily tak to spadně // to do try catch
+            }
+        }        
+    }
+
+    public List<string> DirectoryRead(Sources source,string json)
+    {
+        JsonConvertor convert = new JsonConvertor();
+        Folder newDirectory = convert.CreateStructrue(new Folder("A", source.Path));
+
+        Folder SnapDirectory = JsonConvert.DeserializeObject<Folder>(json);
+
+
+        StructureComparator comparator = new StructureComparator();
+        List<string> snapPaths = comparator.GetAllPaths(SnapDirectory, new List<string>());
+        List<string> newPaths = comparator.GetAllPaths(newDirectory, new List<string>());
+        List<string> different = new List<string>();
+
+        foreach (string diffPath in newPaths)
+        {
+            if (!snapPaths.Contains(diffPath))
+            {
+                different.Add(diffPath);
+            }
+        }
+
+        return different;
     }
 
     public virtual bool CheckSnapshot()

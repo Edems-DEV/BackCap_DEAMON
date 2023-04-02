@@ -13,6 +13,7 @@ namespace Deamon;
 public class Application
 {
     private readonly HttpClient client = new HttpClient();
+    private Paths paths = new();
 
     public Application()
     {
@@ -32,7 +33,7 @@ public class Application
         string json;
         try
         {
-            json = await client.GetStringAsync($"/api/Jobs/Machine/{id}");
+            json = await client.GetStringAsync(paths.ServerPath + id);
         }
         catch (Exception)
         {
