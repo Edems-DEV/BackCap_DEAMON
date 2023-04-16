@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,13 +41,20 @@ public class Application
 
         if (id == null)
         {
-            Machine machine = new Machine();
+            MachineDto machine = new MachineDto()
+            {
+                Name = Environment.MachineName.ToString(),
+                Description = "unknown machine",
+                Os = Environment.OSVersion.ToString().Substring(0, 20),
+                Ip_Address = GetLocalIPAddress(),
+                Mac_Address = BitConverter.ToString(NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault().GetPhysicalAddress().GetAddressBytes())
+            };
             HttpResponseMessage response = await client.PostAsJsonAsync("/api/Machines/register",machine);
             if (!response.IsSuccessStatusCode)
             {
                 LogReport.AddReport("Nepovedlo se odeslat informace o stroji na server.");
             }
-            fileGetter.SaveIdToFile(Convert.ToInt32(machine.id));
+            fileGetter.SaveIdToFile(Convert.ToInt32(id));
             return;
         }
 
@@ -75,6 +83,9 @@ public class Application
 
 
 
+        if (job == null)
+            return;
+
         //reálná verze -- neni otestovaná, nefunguje spojení se serverem
         if (Backuping.ContainsKey(job.Config.Id))
         {
@@ -99,57 +110,77 @@ public class Application
 
 
         //testovací verze, bez získávání dat
-        #region TestJob
-        //test
-        Destination destination1 = new Destination()
-        {
-            Id = 1,
-            Id_Config = 1,
-            DestPath = @"C:\Users\cyril\Desktop\Destination"
-        };
+        //#region TestJob
+        ////test
+        //Destination destination1 = new Destination()
+        //{
+        //    Id = 1,
+        //    Id_Config = 1,
+        //    DestPath = @"C:\Users\cyril\Desktop\Destination"
+        //};
 
-        Destination destination2 = new Destination()
-        {
-            Id = 2,
-            Id_Config = 1,
-            DestPath = @"C:\Users\cyril\Desktop\Dest2"
-        };
+        //Destination destination2 = new Destination()
+        //{
+        //    Id = 2,
+        //    Id_Config = 1,
+        //    DestPath = @"C:\Users\cyril\Desktop\Dest2"
+        //};
 
-        Sources source = new Sources()
-        {
-            Id = 1,
-            Id_Config = 1,
-            Path = @"C:\Users\cyril\Desktop\Source"
-        };
+        //Sources source = new Sources()
+        //{
+        //    Id = 1,
+        //    Id_Config = 1,
+        //    Path = @"C:\Users\cyril\Desktop\Source"
+        //};
 
-        Sources source2 = new Sources()
-        {
-            Id = 2,
-            Id_Config = 1,
-            Path = @"C:\Users\cyril\Desktop\Source2"
-        };
+        //Sources source2 = new Sources()
+        //{
+        //    Id = 2,
+        //    Id_Config = 1,
+        //    Path = @"C:\Users\cyril\Desktop\Source2"
+        //};
 
-        Config config = new Config()
-        {
-            Id = 1,
-            Retention = 2,
-            PackageSize = 3,
-            Type = 1,
-            Sources = new List<Sources> { source, source2 },
-            Destinations = new List<Destination> { destination1, destination2 }
-        };
+        //Config config = new Config()
+        //{
+        //    Id = 1,
+        //    Retention = 2,
+        //    PackageSize = 3,
+        //    Type = 1,
+        //    Sources = new List<Sources> { source, source2 },
+        //    Destinations = new List<Destination> { destination1, destination2 }
+        //};
 
-        Job jobtest = new Job()
-        {
-            Id = 1,
-            Id_Config = 1,
-            Config = config
-        };
-        #endregion
+        //Job jobtest = new Job()
+        //{
+        //    Id = 1,
+        //    Id_Config = 1,
+        //    Config = config
+        //};
+        //#endregion
 
-        JobManager getJobsTest = new JobManager();
-        BackupType jobtypetest = getJobsTest.GetJobTypes(jobtest);
-        jobtypetest.Backup();
+        //JobManager getJobsTest = new JobManager();
+        //BackupType jobtypetest = getJobsTest.GetJobTypes(jobtest);
+        //jobtypetest.Backup();
+
+    }
+    public static string GetLocalIPAddress()
+    {
+        foreach (NetworkInterface netInterface in NetworkInterface.GetAllNetworkInterfaces())
+        {
+            // Only consider Ethernet network interfaces (to exclude virtual interfaces, loopback, etc.)
+            if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet && netInterface.OperationalStatus == OperationalStatus.Up)
+            {
+                foreach (UnicastIPAddressInformation ip in netInterface.GetIPProperties().UnicastAddresses)
+                {
+                    // Only consider IPv4 addresses
+                    if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    {
+                        return ip.Address.ToString();
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }
