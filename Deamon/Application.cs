@@ -39,7 +39,16 @@ public class Application
         int? id = fileGetter.GetID();
 
         if (id == null)
+        {
+            Machine machine = new Machine();
+            HttpResponseMessage response = await client.PostAsJsonAsync("/api/Machines/register",machine);
+            if (!response.IsSuccessStatusCode)
+            {
+                LogReport.AddReport("Nepovedlo se odeslat informace o stroji na server.");
+            }
+            fileGetter.SaveIdToFile(Convert.ToInt32(machine.id));
             return;
+        }
 
         JobManager getJobs = new JobManager();
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Deamon;
 public class Paths
 {
-    public readonly string RoamingPath = $@"C:\Users\cyril\AppData\Roaming";
+    public readonly string RoamingPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToString();
     public readonly string SnapchotNumberPath;
     public readonly string JobsPath;
     public readonly string IDPath;

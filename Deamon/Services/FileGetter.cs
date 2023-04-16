@@ -18,13 +18,6 @@ public class FileGetter
             FileStream filestream = File.Create(paths.JobsPath);
             filestream.Close();
         }
-
-        if (!File.Exists(paths.UsersPath))
-        {
-            FileStream fileStream = File.Create(paths.UsersPath);
-            fileStream.Close();
-        }
-        
     }
 
     public int? GetID()
@@ -78,5 +71,13 @@ public class FileGetter
         }
 
         return job;
+    }
+
+    public void SaveIdToFile(int id)
+    {
+        using (StreamWriter sw = new StreamWriter(paths.IDPath))
+        {
+            sw.WriteLine(id);
+        }
     }
 }
