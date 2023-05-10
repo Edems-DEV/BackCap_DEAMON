@@ -38,15 +38,15 @@ public class Application
 
     public async void GetJobsToFile(object? sender, System.Timers.ElapsedEventArgs? e)
     {
-
+        int id = 0;
         if (fileGetter.GetID() == null)
         {
             MachineDto machine = new MachineDto()
             {
                 Name = Environment.MachineName.ToString(),
-                Description = "unknown machine",
+                Description = this.GetDescription(),
                 Os = Environment.OSVersion.ToString().Substring(0, 20),
-                Ip_Address = GetLocalIPAddress(),
+                Ip_Address = this.GetLocalIPAddress(),
                 Mac_Address = BitConverter.ToString
                 (
                     NetworkInterface.GetAllNetworkInterfaces()
@@ -63,10 +63,9 @@ public class Application
                 return;
             }
 
-            // dodělat získání id
-            string value = await response.Content.ReadAsStringAsync();
+            id = Convert.ToInt32(await response.Content.ReadAsStringAsync());
 
-            fileGetter.SaveIdToFile(Convert.ToInt32(value));
+            fileGetter.SaveIdToFile(Convert.ToInt32(id));
         }
 
         JobManager getJobs = new JobManager();
@@ -121,7 +120,7 @@ public class Application
 
 
         //testovací verze, bez získávání dat
-        //#region TestJob
+        #region TestJob
         ////test
         //Destination destination1 = new Destination()
         //{
@@ -167,14 +166,14 @@ public class Application
         //    Id_Config = 1,
         //    Config = config
         //};
-        //#endregion
+        #endregion
 
         //JobManager getJobsTest = new JobManager();
         //BackupType jobtypetest = getJobsTest.GetJobTypes(jobtest);
         //jobtypetest.Backup();
 
     }
-    public static string GetLocalIPAddress()
+    public string GetLocalIPAddress()
     {
         foreach (NetworkInterface netInterface in NetworkInterface.GetAllNetworkInterfaces())
         {
@@ -192,6 +191,11 @@ public class Application
             }
         }
         return null;
+    }
+
+    public string GetDescription()
+    {
+        return "To Do";
     }
 
 }
