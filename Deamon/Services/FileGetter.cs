@@ -29,22 +29,27 @@ public class FileGetter
 
             return null;
         }
-        else
+
+
+        FileInfo fileInfo = new FileInfo(paths.IDPath);
+        if (fileInfo.Length == 0)
+            return null;
+
+
+        using (StreamReader sr = new StreamReader(paths.IDPath))
         {
-            using (StreamReader sr = new StreamReader(paths.IDPath))
+            int ID;
+            try
             {
-                int ID;
-                try
-                {
-                    ID = Convert.ToInt32(sr.ReadLine());
-                }
-                catch (Exception)
-                {
-                    File.Delete(paths.IDPath);
-                    return null;
-                }
-                return ID;
+                ID = Convert.ToInt32(sr.ReadLine());
             }
+            catch (Exception)
+            {
+                File.Delete(paths.IDPath);
+                return null;
+            }
+            return ID;
+
         }
     }
 
