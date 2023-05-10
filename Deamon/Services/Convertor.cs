@@ -12,10 +12,4 @@ public class Convertor
     {
         return CrontabSchedule.Parse(interval).GetNextOccurrence(DateTime.Now);
     }
-
-    public int CronConvertorMiliseconds(string interval)
-    {
-        var next = CrontabSchedule.Parse(interval).GetNextOccurrence(DateTime.Now);
-        return (int)next.Subtract(DateTime.Now).TotalMilliseconds;
-    }
 }

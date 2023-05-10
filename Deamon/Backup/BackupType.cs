@@ -12,14 +12,14 @@ namespace Deamon.Backup;
 public abstract class BackupType
 {
     private protected Config config { get; set; }
-    private protected string retencionPath = @"C:\Users\Uzivatel\AppData\Roaming\Retencion_1.txt";
-    private protected string snapchotNumberPath = @"C:\Users\Uzivatel\AppData\Roaming\SnapchotNumber.txt";
+    private protected string retencionPath; // opravit retenci ať kontroluje všechny
     private int snapchotNumber = 0;
     private protected Paths paths = new Paths();
 
     public BackupType(Config config)
     {
         this.config = config;
+        this.retencionPath = paths.RoamingPath + @$"\Retencion_{config.Destinations[0].Id}.txt";
 
         // prvotní generace souborů // to do special třída na cesty // constanty
         foreach (Destination destination in config.Destinations)
@@ -46,7 +46,7 @@ public abstract class BackupType
 
     public virtual void Backup()
     {
-        using (StreamReader rd = new StreamReader(snapchotNumberPath))
+        using (StreamReader rd = new StreamReader(paths.SnapchotNumberPath))
         {
             snapchotNumber = Convert.ToInt32(rd.ReadLine());
         }
@@ -196,7 +196,7 @@ public abstract class BackupType
 
     private void UpdateSnapchotNumber()
     {
-        using (StreamWriter wr = new StreamWriter(snapchotNumberPath))
+        using (StreamWriter wr = new StreamWriter(paths.SnapchotNumberPath))
         {
             wr.Write(snapchotNumber.ToString());
         }

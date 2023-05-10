@@ -36,7 +36,7 @@ public class Program
         while (true)
         {
             application.Run();
-            await Task.Delay(1000 * 10); //pauze 10 vteřin
+            await Task.Delay(1000 * 5); //pauze 10 vteřin
         }
     }
 }
