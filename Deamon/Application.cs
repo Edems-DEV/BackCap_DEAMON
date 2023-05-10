@@ -25,26 +25,21 @@ public class Application
         client.BaseAddress = new Uri("http://localhost:5056/");
     }
 
+    public async void SendReports(object? sender, System.Timers.ElapsedEventArgs? e)
+    {
+        await client.PostAsJsonAsync("api/LogsController", LogReport.GetReports);
+    }
+
     public async void GetJobsToFile(object? sender, System.Timers.ElapsedEventArgs? e)
     {
         int? id = fileGetter.GetID();
+
         if (id == null)
         {
-            MachineDto machine = new MachineDto()
-            {
-                Name = Environment.MachineName.ToString(),
-                Description = this.GetDescription(),
-                Os = Environment.OSVersion.ToString().Substring(0, 20),
-                Ip_Address = this.GetLocalIPAddress(),
-                Mac_Address = BitConverter.ToString
-                (
-                    NetworkInterface.GetAllNetworkInterfaces()
-                                    .FirstOrDefault()!
-                                    .GetPhysicalAddress()
-                                    .GetAddressBytes())
-            };
+            MachineManager machineManager = new MachineManager();
+            MachineDto machine = machineManager.GetLocalMachine();
 
-            var response = await client.PostAsJsonAsync("/api/Machines/register",machine);
+            var response = await client.PostAsJsonAsync("/api/Machines/register", machine);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -105,31 +100,6 @@ public class Application
             DateTime interval = convertor.CronConvertorDateTime(job.Config.Backup_interval); // součet času teď a intervalu převedeného na milisekundy
             Backuping.Add(job.Config.Id, interval);
         }
-    }
-
-    public string GetLocalIPAddress()
-    {
-        foreach (NetworkInterface netInterface in NetworkInterface.GetAllNetworkInterfaces())
-        {
-            // Only consider Ethernet network interfaces (to exclude virtual interfaces, loopback, etc.)
-            if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet && netInterface.OperationalStatus == OperationalStatus.Up)
-            {
-                foreach (UnicastIPAddressInformation ip in netInterface.GetIPProperties().UnicastAddresses)
-                {
-                    // Only consider IPv4 addresses
-                    if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                    {
-                        return ip.Address.ToString();
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    public string GetDescription()
-    {
-        return "To Do";
     }
 
 }

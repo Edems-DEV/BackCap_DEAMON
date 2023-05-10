@@ -39,4 +39,18 @@ public class JobManager
                 }
         }
     }
+
+    public string GetJobJson(HttpClient client, int id)
+    {
+        string json;
+        try
+        {
+            json = await client.GetStringAsync($"/api/Jobs/{id}/daemon");
+        }
+        catch (Exception)
+        {
+            LogReport.AddReport("Nepovedlo se připojit k serveru. Daemon běží v offline režimu");
+            return;
+        }
+    }
 }

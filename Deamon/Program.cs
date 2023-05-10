@@ -19,18 +19,18 @@ public class Program
         application.GetJobsToFile(null, null); // prvotní get dat
 
         System.Timers.Timer timer = new System.Timers.Timer();
-        timer.Interval = 1000 * 10; //minuta
+        timer.Interval = 1000 * 10; //10 vteřin
         //každou minutu se zavolá event, který stáhne data ze serveru a uloží je do filu
         //pokud by nebylo připojení/nějaký error. Tak se metoda pouze returne a do filu nic neuloží
         timer.Elapsed += application.GetJobsToFile;
         timer.AutoReset = true;
         timer.Start();
 
-        //System.Timers.Timer reportTimer = new System.Timers.Timer();
-        //timer.Interval = 1000 * 3600; // jednou za hodinu pošle na server report
-        //timer.Elapsed += application.SendReport;
-        //timer.AutoReset = true;
-        //timer.Start();
+        System.Timers.Timer reportTimer = new System.Timers.Timer();
+        timer.Interval = 1000 * 3600; // jednou za hodinu pošle na server report
+        timer.Elapsed += application.SendReports;
+        timer.AutoReset = true;
+        timer.Start();
 
 
         while (true)
