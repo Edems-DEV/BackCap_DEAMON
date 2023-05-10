@@ -27,11 +27,6 @@ public class FileGetter
             FileStream stream = File.Create(paths.IDPath);
             stream.Close();
 
-            using (StreamWriter sw = new StreamWriter(paths.IDPath))
-            {
-                sw.Write(7.ToString()); // vytvoří file s ID 7. Zatím statické s funkčím webem doplním registraci
-            }
-
             return null;
         }
         else

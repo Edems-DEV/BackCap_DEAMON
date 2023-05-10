@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Http.Json;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Deamon;
@@ -47,15 +48,26 @@ public class Application
                 Description = "unknown machine",
                 Os = Environment.OSVersion.ToString().Substring(0, 20),
                 Ip_Address = GetLocalIPAddress(),
-                Mac_Address = BitConverter.ToString(NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault().GetPhysicalAddress().GetAddressBytes())
+                Mac_Address = BitConverter.ToString
+                (
+                    NetworkInterface.GetAllNetworkInterfaces()
+                                    .FirstOrDefault()
+                                    .GetPhysicalAddress()
+                                    .GetAddressBytes())
             };
-            HttpResponseMessage response = await client.PostAsJsonAsync("/api/Machines/register",machine);
+
+            var response = await client.PostAsJsonAsync("/api/Machines/register",machine);
+
             if (!response.IsSuccessStatusCode)
             {
                 LogReport.AddReport("Nepovedlo se odeslat informace o stroji na server.");
+                return;
             }
+
+            // dodělat získání id
+            id = Convert.ToInt32(await response.Content.ReadAsStringAsync());
+
             fileGetter.SaveIdToFile(Convert.ToInt32(id));
-            return;
         }
 
         JobManager getJobs = new JobManager();

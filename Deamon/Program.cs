@@ -26,11 +26,11 @@ public class Program
         timer.AutoReset = true;
         timer.Start();
 
-        System.Timers.Timer reportTimer = new System.Timers.Timer();
-        timer.Interval = 1000 * 3600; // jednou za hodinu pošle na server report
-        timer.Elapsed += application.SendReport;
-        timer.AutoReset = true;
-        timer.Start();
+        //System.Timers.Timer reportTimer = new System.Timers.Timer();
+        //timer.Interval = 1000 * 3600; // jednou za hodinu pošle na server report
+        //timer.Elapsed += application.SendReport;
+        //timer.AutoReset = true;
+        //timer.Start();
 
 
         while (true)
