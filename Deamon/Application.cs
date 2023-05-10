@@ -38,9 +38,8 @@ public class Application
 
     public async void GetJobsToFile(object? sender, System.Timers.ElapsedEventArgs? e)
     {
-        int? id = fileGetter.GetID();
 
-        if (id == null)
+        if (fileGetter.GetID() == null)
         {
             MachineDto machine = new MachineDto()
             {
@@ -65,9 +64,9 @@ public class Application
             }
 
             // dodělat získání id
-            id = Convert.ToInt32(await response.Content.ReadAsStringAsync());
+            string value = await response.Content.ReadAsStringAsync();
 
-            fileGetter.SaveIdToFile(Convert.ToInt32(id));
+            fileGetter.SaveIdToFile(Convert.ToInt32(value));
         }
 
         JobManager getJobs = new JobManager();
