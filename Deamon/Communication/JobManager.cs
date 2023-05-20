@@ -13,7 +13,7 @@ namespace Deamon.Communication;
 public class JobManager
 {
     public BackupType GetJobTypes(Job job)
-    {        
+    {
         switch (job.Config.Type)
         {
             case 0:
@@ -38,5 +38,5 @@ public class JobManager
                     throw new Exception("Nevhodný typ zálohování");
                 }
         }
-    
+    }
 }

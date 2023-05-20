@@ -16,21 +16,21 @@ public class Program
     static async Task Main(string[] args)
     {
         Application application = new Application();
-        application.GetJobsToFile(null, null); // prvotní get dat
+        await application.GetJobsToFile(null, null); // prvotní get dat
 
         System.Timers.Timer timer = new System.Timers.Timer();
         timer.Interval = 1000 * 10; //10 vteřin
         //každou minutu se zavolá event, který stáhne data ze serveru a uloží je do filu
         //pokud by nebylo připojení/nějaký error. Tak se metoda pouze returne a do filu nic neuloží
-        timer.Elapsed += application.GetJobsToFile;
+        timer.Elapsed += async (sender, e) => await application.GetJobsToFile(sender, e);
         timer.AutoReset = true;
         timer.Start();
 
         System.Timers.Timer reportTimer = new System.Timers.Timer();
-        timer.Interval = 1000 * 3600; // jednou za hodinu pošle na server report
-        timer.Elapsed += application.SendReports;
-        timer.AutoReset = true;
-        timer.Start();
+        reportTimer.Interval = 1000 * 3600; // jednou za hodinu pošle na server report
+        reportTimer.Elapsed += async (sender, e) => await application.SendReports(sender, e);
+        reportTimer.AutoReset = true;
+        reportTimer.Start();
 
 
         while (true)

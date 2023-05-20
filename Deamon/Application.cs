@@ -25,12 +25,12 @@ public class Application
         client.BaseAddress = new Uri("http://localhost:5056/");
     }
 
-    public async void SendReports(object? sender, System.Timers.ElapsedEventArgs? e)
+    public async Task SendReports(object? sender, System.Timers.ElapsedEventArgs? e)
     {
         await client.PostAsJsonAsync("api/LogsController", LogReport.GetReports);
     }
 
-    public async void GetJobsToFile(object? sender, System.Timers.ElapsedEventArgs? e)
+    public async Task GetJobsToFile(object? sender, System.Timers.ElapsedEventArgs? e)
     {
         int? id = fileGetter.GetID();
 
