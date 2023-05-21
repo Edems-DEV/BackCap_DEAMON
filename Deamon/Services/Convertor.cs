@@ -22,4 +22,15 @@ public class Convertor
 
         return milliseconds;
     }
+
+    public long CronLengthMilliseconds(string interval) 
+    {
+        CrontabSchedule schedule = CrontabSchedule.Parse(interval);
+        DateTime now = DateTime.Now;
+        DateTime nextOccurrence = schedule.GetNextOccurrence(now);
+        TimeSpan timeUntilNextOccurrence = nextOccurrence - now;
+        long milliseconds = (long)timeUntilNextOccurrence.TotalMilliseconds;
+
+        return milliseconds;
+    }
 }

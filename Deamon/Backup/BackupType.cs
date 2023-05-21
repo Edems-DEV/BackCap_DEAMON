@@ -46,6 +46,8 @@ public abstract class BackupType
 
     public virtual void Backup()
     {
+        LogReport.AddReport("Backup started");
+
         using (StreamReader rd = new StreamReader(paths.SnapchotNumberPath))
         {
             snapchotNumber = Convert.ToInt32(rd.ReadLine());
@@ -81,9 +83,9 @@ public abstract class BackupType
                 {
                     different = DirectoryRead(source, json);
                 }
-                catch (Exception)
+                catch (Exception x)
                 {
-                    LogReport.AddReport("Vyskytl se problém s čtením souborů");
+                    LogReport.AddReport($"Deamon couldn't read data correctly ({x})");
                 }
                
 
@@ -91,9 +93,9 @@ public abstract class BackupType
                 {
                     DirectoryCreate(filepath, different, source);
                 }
-                catch (Exception)
+                catch (Exception x)
                 {
-                    LogReport.AddReport("Vyskytl se problém s kopírováním souborů");
+                    LogReport.AddReport($"Deamon couldn't copy data correctly ({x})");
                 }
                 
             }
@@ -103,6 +105,7 @@ public abstract class BackupType
         }
 
         UpdateSnapchot(SourceToJson(json), path);
+        LogReport.AddReport("Backup finisehd succesfully !");
     }
 
     public void DirectoryCreate(string filepath, List<string> different, Sources source)
@@ -123,7 +126,17 @@ public abstract class BackupType
                 if (Directory.Exists(item))
                     Directory.CreateDirectory(destpath);
                 else
-                    File.Copy(item, destpath); // když existují dva stejné fily tak to spadně // to do try catch
+                {
+                    try
+                    {
+                        File.Copy(item, destpath); // když existují dva stejné fily tak to spadně // to do try catch
+                    }
+                    catch (Exception x)
+                    {
+                        LogReport.AddReport($"Deamon couldn't copy files ({x})");
+                    }
+                }
+                    
             }
         }        
     }

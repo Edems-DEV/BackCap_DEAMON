@@ -7,6 +7,8 @@ public static class LogReport
 
     public async static void AddReport(string message)
     {
+        Console.WriteLine(message);
+
         await Application.SendReports(new Log
         {
             Message = message,
