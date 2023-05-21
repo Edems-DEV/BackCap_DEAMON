@@ -100,8 +100,6 @@ public class Application
         BackupType jobtype = getJobs.GetJobTypes(job);
 
         Backuping[job.Id_Config].Interval = convertor.CronConvertorMilliseconds(job.Config.backup_interval);
-        Backuping[job.Id_Config].AutoReset = false;
-        Backuping[job.Id_Config].Elapsed += Backup;
         Backuping[job.Id_Config].Start();
 
         jobtype.Backup();
