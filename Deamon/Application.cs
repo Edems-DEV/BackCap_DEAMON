@@ -95,7 +95,6 @@ public class Application
 
     public void Backup(object? sender, System.Timers.ElapsedEventArgs? e)
     {
-        Console.WriteLine("Proběhl backup");
         JobManager getJobs = new JobManager();
         BackupType jobtype = getJobs.GetJobTypes(job);
 
