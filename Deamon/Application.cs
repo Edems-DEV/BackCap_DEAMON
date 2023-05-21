@@ -72,11 +72,11 @@ public class Application
         Job job = jobGetter.GetJobsFromFile(); //getování jobů z filu
         Convertor convertor = new Convertor();
 
-
+        //TODO test
 
         if (job == null)
         {
-            Console.WriteLine("Nejsou data. Záloha neprovedla");
+            Console.WriteLine("Nejsou data. Záloha neprovedena");
             return;
         }
 

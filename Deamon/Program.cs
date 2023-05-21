@@ -26,11 +26,13 @@ public class Program
         timer.AutoReset = true;
         timer.Start();
 
-        System.Timers.Timer reportTimer = new System.Timers.Timer();
-        reportTimer.Interval = 1000 * 3600; // jednou za hodinu pošle na server report
-        reportTimer.Elapsed += async (sender, e) => await application.SendReports(sender, e);
-        reportTimer.AutoReset = true;
-        reportTimer.Start();
+        LogReport.ReportAdd += async (reports) => await application.SendReports(null, null, reports); //chytnutí eventu z LogReportu -> zavolá se SendReports kterému předá List<Logů>
+
+        //System.Timers.Timer reportTimer = new System.Timers.Timer();
+        //reportTimer.Interval = 1000 * 3600; // jednou za hodinu pošle na server report
+        //reportTimer.Elapsed += async (sender, e) => await application.SendReports(sender, e);
+        //reportTimer.AutoReset = true;
+        //reportTimer.Start();
 
 
         while (true)

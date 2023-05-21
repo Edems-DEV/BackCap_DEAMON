@@ -20,8 +20,8 @@ public static class LogReport
         });
     }
 
-    public static List<Log> GetReports()
-    {
-        return reports;
-    }
+    //public static List<Log> GetReports()
+    //{
+    //    return reports;
+    //}
 }
