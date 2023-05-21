@@ -10,7 +10,9 @@ using System.Net.Http.Json;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace Deamon;
 public class Application
@@ -18,8 +20,9 @@ public class Application
     private readonly HttpClient client = new HttpClient();
     private FileGetter fileGetter = new FileGetter();
     private Paths paths = new();
-    private Dictionary<int, Timer> Backuping = new Dictionary<int, Timer>();
+    private Dictionary<int, System.Timers.Timer> Backuping = new Dictionary<int, System.Timers.Timer>();
     private Job job;
+    private Convertor convertor = new();
 
     public Application()
     {
@@ -71,8 +74,7 @@ public class Application
     public void Run()
     {
         FileGetter jobGetter = new FileGetter();
-        Job job = jobGetter.GetJobsFromFile(); //getování jobů z filu
-        Convertor convertor = new Convertor();
+        this.job = jobGetter.GetJobsFromFile(); //getování jobů z filu
 
         if (job == null)
         {
@@ -80,19 +82,28 @@ public class Application
             return;
         }
 
-        if (!Backuping.ContainsKey(job.Config.Id))
+        if (!Backuping.ContainsKey(job.Id_Config))
         {
-            // první inicializace pro nový config
-            Timer CronTimer = new Timer(Backup, null, convertor.CronConvertorMilliseconds(job.Config.backup_interval), 1000);            
-            Backuping.Add(job.Config.Id, CronTimer);            
+            System.Timers.Timer timer = new System.Timers.Timer();
+            timer.Interval = convertor.CronConvertorMilliseconds(job.Config.backup_interval);
+            timer.Elapsed += Backup;
+            timer.AutoReset = false;
+            Backuping.Add(job.Config.Id, timer);
+            timer.Start();
         }
     }
 
-    public void Backup(object state)
+    public void Backup(object? sender, System.Timers.ElapsedEventArgs? e)
     {
         Console.WriteLine("Proběhl backup");
         JobManager getJobs = new JobManager();
         BackupType jobtype = getJobs.GetJobTypes(job);
+
+        Backuping[job.Id_Config].Interval = convertor.CronConvertorMilliseconds(job.Config.backup_interval);
+        Backuping[job.Id_Config].AutoReset = false;
+        Backuping[job.Id_Config].Elapsed += Backup;
+        Backuping[job.Id_Config].Start();
+
         jobtype.Backup();
     }
 
