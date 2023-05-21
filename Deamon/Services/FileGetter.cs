@@ -55,7 +55,7 @@ public class FileGetter
 
     public void SaveJobsToFile(string json)
     {
-        using(StreamWriter sw = new StreamWriter(paths.JobsPath))
+        using (StreamWriter sw = new StreamWriter(paths.JobsPath))
         {
             sw.WriteLine(json);
         }

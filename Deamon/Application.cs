@@ -18,16 +18,18 @@ public class Application
     private readonly HttpClient client = new HttpClient();
     private FileGetter fileGetter = new FileGetter();
     private Paths paths = new();
-    private Dictionary<int, DateTime> Backuping = new Dictionary<int, DateTime>();
+    private Dictionary<int, Timer> Backuping = new Dictionary<int, Timer>();
+    private Job job;
 
     public Application()
     {
         client.BaseAddress = new Uri("http://localhost:5056/");
     }
 
-    public async Task SendReports(object? sender, System.Timers.ElapsedEventArgs? e)
+    public async Task SendReports(Log log)
     {
-        await client.PostAsJsonAsync("api/LogsController", LogReport.GetReports);
+       //TODO - může mít error
+       await client.PostAsJsonAsync("api/LogsController",log);
     }
 
     public async Task GetJobsToFile(object? sender, System.Timers.ElapsedEventArgs? e)
@@ -54,7 +56,7 @@ public class Application
 
         string json;
         try
-        {
+        {            
             json = await client.GetStringAsync($"/api/Jobs/{id}/daemon");
         }
         catch (Exception)
@@ -72,34 +74,26 @@ public class Application
         Job job = jobGetter.GetJobsFromFile(); //getování jobů z filu
         Convertor convertor = new Convertor();
 
-        //TODO test
-
         if (job == null)
         {
             Console.WriteLine("Nejsou data. Záloha neprovedena");
             return;
         }
 
-        //reálná verze -- neni otestovaná, nefunguje spojení se serverem
-        if (Backuping.ContainsKey(job.Config.Id))
-        {
-            // kontrola času v konfigu, jestli má zálohovat
-            if (DateTime.Now - Backuping[job.Config.Id] > TimeSpan.FromSeconds(2))
-            {
-                JobManager getJobs = new JobManager();
-                BackupType jobtype = getJobs.GetJobTypes(job);
-                jobtype.Backup();
-
-                //po záloze znova navýšení času
-                Backuping[job.Config.Id] = convertor.CronConvertorDateTime(job.Config.Backup_interval);
-            }
-        }
-        else
+        if (!Backuping.ContainsKey(job.Config.Id))
         {
             // první inicializace pro nový config
-            DateTime interval = convertor.CronConvertorDateTime(job.Config.Backup_interval); // součet času teď a intervalu převedeného na milisekundy
-            Backuping.Add(job.Config.Id, interval);
+            Timer CronTimer = new Timer(Backup, null, convertor.CronConvertorMilliseconds(job.Config.backup_interval), 1000);            
+            Backuping.Add(job.Config.Id, CronTimer);            
         }
+    }
+
+    public void Backup(object state)
+    {
+        Console.WriteLine("Proběhl backup");
+        JobManager getJobs = new JobManager();
+        BackupType jobtype = getJobs.GetJobTypes(job);
+        jobtype.Backup();
     }
 
 }

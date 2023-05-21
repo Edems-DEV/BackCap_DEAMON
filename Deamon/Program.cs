@@ -16,7 +16,8 @@ public class Program
     static async Task Main(string[] args)
     {
         Application application = new Application();
-        await application.GetJobsToFile(null, null); // prvotní get dat
+        LogReport.Application = application;
+        await application.GetJobsToFile(null, null); // prvotní get dat        
 
         System.Timers.Timer timer = new System.Timers.Timer();
         timer.Interval = 1000 * 10; //10 vteřin
@@ -24,16 +25,7 @@ public class Program
         //pokud by nebylo připojení/nějaký error. Tak se metoda pouze returne a do filu nic neuloží
         timer.Elapsed += async (sender, e) => await application.GetJobsToFile(sender, e);
         timer.AutoReset = true;
-        timer.Start();
-
-        LogReport.ReportAdd += async (reports) => await application.SendReports(null, null, reports); //chytnutí eventu z LogReportu -> zavolá se SendReports kterému předá List<Logů>
-
-        //System.Timers.Timer reportTimer = new System.Timers.Timer();
-        //reportTimer.Interval = 1000 * 3600; // jednou za hodinu pošle na server report
-        //reportTimer.Elapsed += async (sender, e) => await application.SendReports(sender, e);
-        //reportTimer.AutoReset = true;
-        //reportTimer.Start();
-
+        timer.Start();        
 
         while (true)
         {
