@@ -13,6 +13,7 @@ namespace Deamon;
 
 public class Program
 {
+    //poznamka
     static async Task Main(string[] args)
     {
         Application application = new Application();
