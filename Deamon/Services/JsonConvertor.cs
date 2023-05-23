@@ -1,4 +1,5 @@
-﻿using Deamon.Models;
+﻿using Deamon.Communication;
+using Deamon.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,12 @@ public class JsonConvertor
 {
     public Folder CreateStructrue(Folder folderList)
     {
+        if(!Directory.Exists(folderList.SourcePath))
+        {
+            LogReport.AddReport("Folder isn't valid");
+            return folderList;
+        }
+
         var sourceInfo = new DirectoryInfo(folderList.SourcePath);
 
         foreach (var sourceSubInfo in sourceInfo.GetFileSystemInfos())

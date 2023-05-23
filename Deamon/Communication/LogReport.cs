@@ -1,4 +1,5 @@
 ﻿using Deamon.Models;
+using System.Runtime.CompilerServices;
 
 namespace Deamon.Communication;
 public static class LogReport
@@ -9,11 +10,14 @@ public static class LogReport
     {
         Console.WriteLine(message);
 
+        if(Application.Job == null)
+            return;
+
         await Application.SendReports(new Log
         {
+            Id_Job = Application.Job.Id,
             Message = message,
             Time = DateTime.Now,
-            Status = 1
-        });
+        }); 
     }
 }
