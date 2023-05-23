@@ -32,7 +32,7 @@ public class Application
     public async Task SendReports(Log log)
     {
        //TODO - může mít error
-       await client.PostAsJsonAsync("api/LogsController",log);
+       await client.PostAsJsonAsync("api/Logs",log);
     }
 
     public async Task GetJobsToFile(object? sender, System.Timers.ElapsedEventArgs? e)
