@@ -82,7 +82,7 @@ public class Application
             return;
         }
 
-        Backuping.Keys.Where(x => x == Job.Id_Config).ToList().ForEach(x => Backuping.Remove(x));
+        Backuping.Keys.Where(x => x != Job.Id_Config).ToList().ForEach(x => Backuping.Remove(x));
 
         if (!Backuping.ContainsKey(Job.Id_Config))
         {
