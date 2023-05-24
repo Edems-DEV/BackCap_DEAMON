@@ -26,7 +26,9 @@ public class Program
         //pokud by nebylo připojení/nějaký error. Tak se metoda pouze returne a do filu nic neuloží
         timer.Elapsed += async (sender, e) => await application.GetJobsToFile(sender, e);
         timer.AutoReset = true;
-        timer.Start();        
+        timer.Start();    
+        
+        
 
         while (true)
         {
