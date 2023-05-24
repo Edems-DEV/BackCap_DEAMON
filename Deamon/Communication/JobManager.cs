@@ -14,6 +14,7 @@ public class JobManager
 {
     public async Task<BackupType> GetJobTypes(Job job)
     {
+        
         switch (job.Config.Type)
         {
             case 0:
