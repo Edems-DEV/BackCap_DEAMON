@@ -31,8 +31,15 @@ public class Application
 
     public async Task SendReports(Log log)
     {
-       //TODO - může mít error
-       await client.PostAsJsonAsync("/api/Logs/Add", log);
+        //TODO - může mít error
+        try
+        {
+            await client.PostAsJsonAsync("/api/Logs/Add", log);
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("nepodařilo se poslat log, server nekomunikuj :(");
+        }
     }
 
     public async Task GetJobsToFile(object? sender, System.Timers.ElapsedEventArgs? e)
@@ -48,7 +55,7 @@ public class Application
 
             if (!response.IsSuccessStatusCode)
             {
-                LogReport.AddReport("Nepovedlo se odeslat informace o stroji na server.");
+                await LogReport.AddReport("Nepovedlo se odeslat informace o stroji na server.");
                 return;
             }
 
@@ -64,14 +71,14 @@ public class Application
         }
         catch (Exception)
         {
-            LogReport.AddReport("Nepovedlo se připojit k serveru. Daemon běží v offline režimu");
+            await LogReport.AddReport("Nepovedlo se připojit k serveru. Daemon běží v offline režimu");
             return;
         }
 
         fileGetter.SaveJobsToFile(json); // uloží joby do filu
     }
 
-    public void Run()
+    public async Task Run()
     {
         FileGetter jobGetter = new FileGetter();
         this.Job = jobGetter.GetJobsFromFile(); //getování jobů z filu
@@ -86,22 +93,22 @@ public class Application
         {
             System.Timers.Timer timer = new System.Timers.Timer();
             timer.Interval = convertor.CronConvertorMilliseconds(Job.Config.backup_interval);
-            timer.Elapsed += Backup;
+            timer.Elapsed += async(sender, e) => await Backup(sender, e);
             timer.AutoReset = false;
             Backuping.Add(Job.Config.Id, timer);
             timer.Start();
         }
     }
 
-    public void Backup(object? sender, System.Timers.ElapsedEventArgs? e)
+    public async Task Backup(object? sender, System.Timers.ElapsedEventArgs? e)
     {
         JobManager getJobs = new JobManager();
-        BackupType jobtype = getJobs.GetJobTypes(Job);
+        BackupType jobtype = await getJobs.GetJobTypes(Job);
 
         Backuping[Job.Id_Config].Interval = convertor.CronConvertorMilliseconds(Job.Config.backup_interval);
         Backuping[Job.Id_Config].Start();
 
-        jobtype.Backup();
+        await jobtype.Backup();
     }
 
 }

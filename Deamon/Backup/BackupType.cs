@@ -44,9 +44,9 @@ public abstract class BackupType
 
     }
 
-    public virtual void Backup()
+    public async virtual Task Backup()
     {
-        LogReport.AddReport("Backup started");
+        await LogReport.AddReport("Backup started");
 
         using (StreamReader rd = new StreamReader(paths.SnapchotNumberPath))
         {
@@ -81,21 +81,21 @@ public abstract class BackupType
                 List<string> different = new List<string>();
                 try
                 {
-                    different = DirectoryRead(source, json);
+                    different = await DirectoryRead(source, json);
                 }
                 catch (Exception x)
                 {
-                    LogReport.AddReport($"Deamon couldn't read data correctly ({x})");
+                    await LogReport.AddReport($"Deamon couldn't read data correctly ({x})");
                 }
                
 
                 try
                 {
-                    DirectoryCreate(filepath, different, source);
+                    await DirectoryCreate(filepath, different, source);
                 }
                 catch (Exception x)
                 {
-                    LogReport.AddReport($"Deamon couldn't copy data correctly ({x})");
+                    await LogReport.AddReport($"Deamon couldn't copy data correctly ({x})");
                 }
                 
             }
@@ -104,11 +104,11 @@ public abstract class BackupType
             retencion.WriteRetencion(filepath);
         }
 
-        UpdateSnapchot(SourceToJson(json), path);
-        LogReport.AddReport("Backup finisehd succesfully !");
+        UpdateSnapchot(await SourceToJson(json), path);
+        await LogReport.AddReport("Backup finisehd succesfully !");
     }
 
-    public void DirectoryCreate(string filepath, List<string> different, Sources source)
+    public async Task DirectoryCreate(string filepath, List<string> different, Sources source)
     {
         different.Sort();
 
@@ -133,7 +133,7 @@ public abstract class BackupType
                     }
                     catch (Exception x)
                     {
-                        LogReport.AddReport($"Deamon couldn't copy files ({x})");
+                        await LogReport.AddReport($"Deamon couldn't copy files ({x})");
                     }
                 }
                     
@@ -141,10 +141,10 @@ public abstract class BackupType
         }        
     }
 
-    public List<string> DirectoryRead(Sources source,string json)
+    public async Task<List<string>> DirectoryRead(Sources source,string json)
     {
         JsonConvertor convert = new JsonConvertor();
-        Folder newDirectory = convert.CreateStructrue(new Folder("A", source.Path));
+        Folder newDirectory = await convert.CreateStructrue(new Folder("A", source.Path));
 
         Folder SnapDirectory = JsonConvert.DeserializeObject<Folder>(json);
 
@@ -190,7 +190,7 @@ public abstract class BackupType
     public abstract void UpdateSnapchot(string json,string path); // každá třída udělá update podle sebe. Full-Žádný, Diff-Update při prvnim, Inc-Sloučí
     // možná bude potřeba dodělat classu snapchot kvůli retenci. Ještě v plánování
 
-    public string SourceToJson(string json)
+    public async Task<string> SourceToJson(string json)
     {
         // vytvoření jsonu pro každý source. A jejich následná kombinace do jednoho 
         foreach (Sources source in config.Sources)
@@ -198,7 +198,7 @@ public abstract class BackupType
             JsonCombiner jsonCombiner = new JsonCombiner();
             JsonConvertor jsonConvertor = new JsonConvertor();
 
-            Folder newDirectory = jsonConvertor.CreateStructrue(new Folder($"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}", source.Path));
+            Folder newDirectory = await jsonConvertor.CreateStructrue(new Folder($"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}", source.Path));
             string jsonTemp = JsonConvert.SerializeObject(newDirectory, Formatting.Indented);
 
             json = jsonCombiner.MergeJsons(json, jsonTemp);

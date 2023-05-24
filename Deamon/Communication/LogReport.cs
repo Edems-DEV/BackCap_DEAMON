@@ -6,7 +6,7 @@ public static class LogReport
 {
     public static Application Application { get; set; }
 
-    public async static void AddReport(string message)
+    public static async Task AddReport(string message)
     {
         Console.WriteLine(message);
 
