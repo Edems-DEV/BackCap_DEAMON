@@ -18,7 +18,7 @@ public class Config
 
     public bool IsCompressed { get; set; }
 
-    public string? backup_interval { get; set; }
+    public string backup_interval { get; set; }
 
     public DateTime? Interval_end { get; set; }
 
