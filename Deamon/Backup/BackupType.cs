@@ -4,6 +4,7 @@ using Deamon.Services;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -73,6 +74,8 @@ public abstract class BackupType
         foreach (Destination destiantion in config.Destinations)
         {
             string filepath = Path.Combine(destiantion.DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}");
+            string ZIPfilepath = filepath + ".zip";
+                
             Retencion retencion = new Retencion(config.Id, destiantion.Id, config.Retention, config.PackageSize);
             retencion.ReadRetencion();
 
@@ -100,8 +103,14 @@ public abstract class BackupType
                 
             }
 
-
-            retencion.WriteRetencion(filepath);
+            if(config.IsCompressed)
+            {
+                ZipFile.CreateFromDirectory(filepath, ZIPfilepath);
+                Directory.Delete(filepath,true);
+                retencion.WriteRetencion(ZIPfilepath);
+            }
+            else
+                retencion.WriteRetencion(filepath);
         }
 
         UpdateSnapchot(await SourceToJson(json), path);
@@ -120,16 +129,16 @@ public abstract class BackupType
         {
             foreach (var item in different)
             {
-                string result = item.Remove(0, source.Path.Length);
+                string result = item.Remove(0, source.Path.Length);                
                 string destpath = filepath + result;
 
                 if (Directory.Exists(item))
-                    Directory.CreateDirectory(destpath);
+                Directory.CreateDirectory(destpath);
                 else
                 {
                     try
                     {
-                        File.Copy(item, destpath); // když existují dva stejné fily tak to spadně // to do try catch
+                        File.Copy(item, destpath); 
                     }
                     catch (Exception x)
                     {
