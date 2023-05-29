@@ -89,7 +89,10 @@ public class Application
             return;
         }
          //TODO
-        Backuping.Keys.Where(x => x != Job.Id_Config).ToList().ForEach(x => Backuping.Remove(x) && Backuping[x].Stop());
+        Backuping.Keys
+            .Where(x => x != Job.Id_Config)
+            .ToList()
+            .ForEach(x => StopTimer(x));
 
         if (!Backuping.ContainsKey(Job.Id_Config))
         {
@@ -111,6 +114,14 @@ public class Application
         Backuping[Job.Id_Config].Start();
 
         await jobtype.Backup();
+    }
+
+    private void StopTimer(int idJob)
+    {
+        Backuping[idJob].Stop();
+        Backuping[idJob].Dispose();
+
+        Backuping.Remove(idJob);
     }
 
 }
