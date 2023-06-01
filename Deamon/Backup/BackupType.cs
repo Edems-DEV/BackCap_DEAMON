@@ -76,7 +76,7 @@ public abstract class BackupType
             string filepath = Path.Combine(destiantion.DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}");
             string ZIPfilepath = filepath + ".zip";
                 
-            Retencion retencion = new Retencion(config.Id, destiantion.Id, config.Retention, config.PackageSize);
+            Retencion retencion = new Retencion(config.Id, destiantion.Id, config.Retention, config.PackageSize,config);
             retencion.ReadRetencion();
 
             foreach (Sources source in config.Sources)

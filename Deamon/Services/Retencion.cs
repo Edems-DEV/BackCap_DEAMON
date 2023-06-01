@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Deamon.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,8 +13,9 @@ public class Retencion
     private string path;
     private List<string> data = new List<string>();
     private Paths paths = new Paths();
+    private protected Config config;
 
-    public Retencion(int id, int destinationId, int retencion, int packageLimit)
+    public Retencion(int id, int destinationId, int retencion, int packageLimit, Config config)
     {
         this.path = paths.RoamingPath + @$"\Retencion_{destinationId}.txt";
 
@@ -26,6 +28,7 @@ public class Retencion
             stream.Close();
         }
 
+        this.config = config;
     }
 
     public void WriteRetencion(string path)
@@ -55,7 +58,11 @@ public class Retencion
                 //int limit = data.Count;
                 for (int i = 0; i < packageLimit; i++)
                 {
-                    Directory.Delete(data[0], true);
+                    if(config.IsCompressed)
+                        File.Delete(data[0]);
+                    else
+                        Directory.Delete(data[0], true);
+
                     data.RemoveAt(0);
                 }
             }
