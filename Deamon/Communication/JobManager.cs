@@ -12,8 +12,9 @@ using System.Threading.Tasks;
 namespace Deamon.Communication;
 public class JobManager
 {
-    public BackupType GetJobTypes(Job job)
+    public async Task<BackupType> GetJobTypes(Job job)
     {
+        
         switch (job.Config.Type)
         {
             case 0:
@@ -34,7 +35,7 @@ public class JobManager
 
             default:
                 {
-                    LogReport.AddReport("Nevhodný typ zálohování");
+                    await LogReport.AddReport("Nevhodný typ zálohování");
                     throw new Exception("Nevhodný typ zálohování");
                 }
         }

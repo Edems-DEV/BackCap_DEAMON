@@ -52,8 +52,8 @@ public class Retencion
 
             if (retencion * packageLimit == data.Count)
             {
-                int limit = data.Count;
-                for (int i = 0; i < limit / 2; i++)
+                //int limit = data.Count;
+                for (int i = 0; i < packageLimit; i++)
                 {
                     Directory.Delete(data[0], true);
                     data.RemoveAt(0);

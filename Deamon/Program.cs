@@ -13,6 +13,7 @@ namespace Deamon;
 
 public class Program
 {
+    //poznamka
     static async Task Main(string[] args)
     {
         Application application = new Application();
@@ -25,11 +26,13 @@ public class Program
         //pokud by nebylo připojení/nějaký error. Tak se metoda pouze returne a do filu nic neuloží
         timer.Elapsed += async (sender, e) => await application.GetJobsToFile(sender, e);
         timer.AutoReset = true;
-        timer.Start();        
+        timer.Start();    
+        
+        
 
         while (true)
         {
-            application.Run();
+            await application.Run();
             await Task.Delay(1000 * 5); //pauze 10 vteřin
         }
     }

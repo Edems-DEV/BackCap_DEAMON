@@ -21,7 +21,7 @@ public class Application
     private FileGetter fileGetter = new FileGetter();
     private Paths paths = new();
     private Dictionary<int, System.Timers.Timer> Backuping = new Dictionary<int, System.Timers.Timer>();
-    private Job job;
+    public Job Job { get; set; }
     private Convertor convertor = new();
 
     public Application()
@@ -31,8 +31,15 @@ public class Application
 
     public async Task SendReports(Log log)
     {
-       //TODO - může mít error
-       await client.PostAsJsonAsync("api/LogsController",log);
+        //TODO - může mít error
+        try
+        {
+            await client.PostAsJsonAsync("/api/Logs/Add", log);
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("nepodařilo se poslat log, server nekomunikuj :(");
+        }
     }
 
     public async Task GetJobsToFile(object? sender, System.Timers.ElapsedEventArgs? e)
@@ -48,7 +55,7 @@ public class Application
 
             if (!response.IsSuccessStatusCode)
             {
-                LogReport.AddReport("Nepovedlo se odeslat informace o stroji na server.");
+                await LogReport.AddReport("Nepovedlo se odeslat informace o stroji na server.");
                 return;
             }
 
@@ -64,46 +71,57 @@ public class Application
         }
         catch (Exception)
         {
-            LogReport.AddReport("Nepovedlo se připojit k serveru. Daemon běží v offline režimu");
+            await LogReport.AddReport("Nepovedlo se připojit k serveru. Daemon běží v offline režimu");
             return;
         }
 
         fileGetter.SaveJobsToFile(json); // uloží joby do filu
     }
 
-    public void Run()
+    public async Task Run()
     {
         FileGetter jobGetter = new FileGetter();
-        this.job = jobGetter.GetJobsFromFile(); //getování jobů z filu
+        this.Job = jobGetter.GetJobsFromFile(); //getování jobů z filu
 
-        if (job == null)
+        if (Job == null)
         {
             Console.WriteLine("Nejsou data. Záloha neprovedena");
             return;
         }
+         //TODO
+        Backuping.Keys
+            .Where(x => x != Job.Id_Config)
+            .ToList()
+            .ForEach(x => StopTimer(x));
 
-        if (!Backuping.ContainsKey(job.Id_Config))
+        if (!Backuping.ContainsKey(Job.Id_Config))
         {
             System.Timers.Timer timer = new System.Timers.Timer();
-            timer.Interval = convertor.CronConvertorMilliseconds(job.Config.backup_interval);
-            timer.Elapsed += Backup;
+            timer.Interval = convertor.CronConvertorMilliseconds(Job.Config.backup_interval);
+            timer.Elapsed += async(sender, e) => await Backup(sender, e);
             timer.AutoReset = false;
-            Backuping.Add(job.Config.Id, timer);
+            Backuping.Add(Job.Config.Id, timer);
             timer.Start();
         }
     }
 
-    public void Backup(object? sender, System.Timers.ElapsedEventArgs? e)
+    public async Task Backup(object? sender, System.Timers.ElapsedEventArgs? e)
     {
         JobManager getJobs = new JobManager();
-        BackupType jobtype = getJobs.GetJobTypes(job);
+        BackupType jobtype = await getJobs.GetJobTypes(Job);
 
-        Backuping[job.Id_Config].Interval = convertor.CronConvertorMilliseconds(job.Config.backup_interval);
-        Backuping[job.Id_Config].AutoReset = false;
-        Backuping[job.Id_Config].Elapsed += Backup;
-        Backuping[job.Id_Config].Start();
+        Backuping[Job.Id_Config].Interval = convertor.CronConvertorMilliseconds(Job.Config.backup_interval);
+        Backuping[Job.Id_Config].Start();
 
-        jobtype.Backup();
+        await jobtype.Backup();
+    }
+
+    private void StopTimer(int idJob)
+    {
+        Backuping[idJob].Stop();
+        Backuping[idJob].Dispose();
+
+        Backuping.Remove(idJob);
     }
 
 }

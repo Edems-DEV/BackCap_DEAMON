@@ -1,4 +1,5 @@
-﻿using Deamon.Models;
+﻿using Deamon.Communication;
+using Deamon.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,14 @@ using System.Threading.Tasks;
 namespace Deamon.Services;
 public class JsonConvertor
 {
-    public Folder CreateStructrue(Folder folderList)
+    public async Task<Folder> CreateStructrue(Folder folderList)
     {
+        if(!Directory.Exists(folderList.SourcePath))
+        {
+            await LogReport.AddReport("Folder isn't valid");
+            return folderList;
+        }
+
         var sourceInfo = new DirectoryInfo(folderList.SourcePath);
 
         foreach (var sourceSubInfo in sourceInfo.GetFileSystemInfos())
@@ -17,7 +24,7 @@ public class JsonConvertor
             if (sourceSubInfo.Attributes.HasFlag(FileAttributes.Directory))
             {
                 folderList.folders.Add(new Folder(sourceSubInfo.Name, Path.Combine(folderList.SourcePath, sourceSubInfo.Name)));
-                CreateStructrue(folderList.folders[folderList.folders.Count - 1]);
+                await CreateStructrue(folderList.folders[folderList.folders.Count - 1]);
             }
             else
             {
