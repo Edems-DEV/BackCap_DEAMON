@@ -6,7 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Deamon.Backup;
@@ -47,7 +50,7 @@ public abstract class BackupType
 
     public async virtual Task Backup()
     {
-        await LogReport.AddReport("Backup started");
+        await LogReport.AddReport("Backup started");        
 
         using (StreamReader rd = new StreamReader(paths.SnapchotNumberPath))
         {
@@ -73,6 +76,7 @@ public abstract class BackupType
 
         foreach (Destination destiantion in config.Destinations)
         {
+            //TODO - bude ftp server součástí filepath ? (asi jo - kod je stím že ano)
             string filepath = Path.Combine(destiantion.DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}");
             string ZIPfilepath = filepath + ".zip";
                 
@@ -95,6 +99,7 @@ public abstract class BackupType
                 try
                 {
                     await DirectoryCreate(filepath, different, source);
+
                 }
                 catch (Exception x)
                 {
@@ -121,9 +126,54 @@ public abstract class BackupType
     {
         different.Sort();
 
+        string server = string.Empty;
+        string remoteFilePath = string.Empty;
+        string username = string.Empty;
+        string password = string.Empty;
+        bool isFTP = false;
+
+        if (source.Path.Substring(0,4) == "ftp:") //TODO neotestovano
+        {
+            string ftpUrl = "ftp://jon:apple@bigcompany.com/path/to/remote/file.txt";
+
+            Regex regex = new Regex(@"^ftp://(?<username>\w+):(?<password>\w+)@(?<server>[\w.-]+)/(?<remoteFilePath>.+)$");
+            Match match = regex.Match(ftpUrl);
+
+            if (match.Success)
+            {
+                // Extract the components from the match groups
+                server = "ftp://" + match.Groups["server"].Value;
+                remoteFilePath = match.Groups["remoteFilePath"].Value;
+                username = match.Groups["username"].Value;
+                password = match.Groups["password"].Value;
+            }
+            else
+                await LogReport.AddReport("Invalid FTP URL format.");
+        }
+
+        //FTP       
+
+        FtpWebRequest ftpRequest = (FtpWebRequest)WebRequest.Create(server); 
+        ftpRequest.Credentials = new NetworkCredential(username, password);
+        ftpRequest.Method = WebRequestMethods.Ftp.ListDirectory;
+
+        FtpWebResponse ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
+        Stream responseStream = ftpResponse.GetResponseStream();
+        StreamReader reader = new StreamReader(responseStream);
+        //FTP-
+
         if (different.Count == 0)
         {
-            Directory.CreateDirectory(filepath);
+            if(isFTP)
+            {
+                ftpRequest = (FtpWebRequest)WebRequest.Create(filepath);
+                ftpRequest.Credentials = new NetworkCredential(username, password);   
+                ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;                 
+            }
+            else
+            {
+                Directory.CreateDirectory(filepath);
+            }
         }
         else
         {
@@ -132,20 +182,68 @@ public abstract class BackupType
                 string result = item.Remove(0, source.Path.Length);                
                 string destpath = filepath + result;
 
-                if (Directory.Exists(item))
-                Directory.CreateDirectory(destpath);
-                else
+                if (isFTP)
                 {
+
+                    FtpWebRequest ftpRequestItemExists = (FtpWebRequest)WebRequest.Create(server + item);
+                    ftpRequestItemExists.Credentials = new NetworkCredential(username, password);
+                    ftpRequestItemExists.Method = WebRequestMethods.Ftp.GetDateTimestamp;
+
                     try
                     {
-                        File.Copy(item, destpath); 
+                        FtpWebResponse ftpResponseItemExists = (FtpWebResponse)ftpRequestItemExists.GetResponse(); //tady na tom to kdyžtak spadne
+                        // Item exist?
+
+                        ftpRequestItemExists = (FtpWebRequest)WebRequest.Create(server + item);
+                        ftpRequestItemExists.Credentials = new NetworkCredential(username, password);
+                        ftpRequestItemExists.Method = WebRequestMethods.Ftp.UploadFile;
+
+                        ftpResponseItemExists.Close();
                     }
-                    catch (Exception x)
+                    catch (WebException ex)
                     {
-                        await LogReport.AddReport($"Deamon couldn't copy files ({x})");
+                        FtpWebResponse ftpResponseItemExists = (FtpWebResponse)ex.Response;
+                        if (ftpResponseItemExists.StatusCode == FtpStatusCode.ActionNotTakenFileUnavailable)
+                        {
+                            ftpRequest = (FtpWebRequest)WebRequest.Create(server + remoteFilePath);
+                            ftpRequest.Credentials = new NetworkCredential(username, password);   
+                            ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;                 
+
+                            byte[] fileContents = File.ReadAllBytes(source.Path);                 
+                            ftpRequest.ContentLength = fileContents.Length;                       
+
+                            Stream requestStream = ftpRequest.GetRequestStream();                 
+                            requestStream.Write(fileContents, 0, fileContents.Length);            
+                            requestStream.Close();                                                
+
+                            FtpWebResponse uploadResponse = (FtpWebResponse)ftpRequest.GetResponse();
+                            await LogReport.AddReport("Upload File Complete. Status: " + uploadResponse.StatusDescription);
+                        }
+                        else
+                        {
+                            await LogReport.AddReport("An error occurred: " + ex.Message);
+                        }
+                        ftpResponseItemExists.Close();
                     }
                 }
-                    
+                else
+                {
+                    if (Directory.Exists(item))
+                    {
+                        Directory.CreateDirectory(destpath);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            File.Copy(item, destpath);
+                        }
+                        catch (Exception x)
+                        {
+                            await LogReport.AddReport($"Deamon couldn't copy files ({x})");
+                        }
+                    }
+                }                    
             }
         }        
     }

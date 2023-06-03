@@ -15,7 +15,7 @@ internal class _delete_FTPreference
         string password = "your-password";
 
         // Connect to the FTP server
-        FtpWebRequest ftpRequest = (FtpWebRequest)WebRequest.Create(server); //vytvoří request
+        FtpWebRequest ftpRequest = (FtpWebRequest)WebRequest.Create(server);  //vytvoří request
         ftpRequest.Credentials = new NetworkCredential(username, password);   //přihlášení pomocí údajů
         ftpRequest.Method = WebRequestMethods.Ftp.ListDirectory;              //???
 
@@ -49,8 +49,8 @@ internal class _delete_FTPreference
         ftpRequest = (FtpWebRequest)WebRequest.Create(server + remoteFilePath);//vytvoří request
         ftpRequest.Credentials = new NetworkCredential(username, password);   //přihlášení pomocí údajů 
         ftpRequest.Method = WebRequestMethods.Ftp.DeleteFile;                 //???
-
-        FtpWebResponse deleteResponse = (FtpWebResponse)ftpRequest.GetResponse();//data v requestu SMAŽE
+         
+        FtpWebResponse deleteResponse = (FtpWebResponse)ftpRequest.GetResponse();//data v requestu SMAŽE ??
         Console.WriteLine("Delete File Complete. Status: " + deleteResponse.StatusDescription);
 
         // Clean up

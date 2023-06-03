@@ -12,6 +12,7 @@ public class Paths
     public readonly string JobsPath;
     public readonly string IDPath;
     public readonly string ServerPath = $"/api/Jobs/Machine/";
+    public string FTPserver;
 
     public Paths()
     {
