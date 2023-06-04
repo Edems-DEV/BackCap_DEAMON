@@ -14,6 +14,9 @@ internal class _delete_FTPreference
         string username = "your-username";
         string password = "your-password";
 
+        string localFilePath = "C:\\path\\to\\local\\file.txt";               //to co budeme kopírovat
+        string remoteFilePath = "/path/to/remote/file.txt";                   //to kam to budeme kopírovat (mi to budeme mít už rovnou za servererm)
+
         // Connect to the FTP server
         FtpWebRequest ftpRequest = (FtpWebRequest)WebRequest.Create(server);  //vytvoří request
         ftpRequest.Credentials = new NetworkCredential(username, password);   //přihlášení pomocí údajů
@@ -27,8 +30,6 @@ internal class _delete_FTPreference
         Console.WriteLine("Directory List:");
         Console.WriteLine(reader.ReadToEnd());                                //vypíše co přečetl
 
-        string localFilePath = "C:\\path\\to\\local\\file.txt";               //to co budeme kopírovat
-        string remoteFilePath = "/path/to/remote/file.txt";                   //to kam to budeme kopírovat (mi to budeme mít už rovnou za servererm)
 
         // ------------------------------------------------------------------- UPLOAD FILE ----------------------------------------------------
         ftpRequest = (FtpWebRequest)WebRequest.Create(server + remoteFilePath);//vytvoří request

@@ -1,7 +1,10 @@
-﻿using Deamon.Models;
+﻿using Deamon.Backup;
+using Deamon.Communication;
+using Deamon.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -43,7 +46,7 @@ public class Retencion
         }
     }
 
-    public void ReadRetencion()
+    public async Task ReadRetencion()
     {
         using (StreamReader reader = new StreamReader(this.path))
         {
@@ -58,14 +61,53 @@ public class Retencion
                 //int limit = data.Count;
                 for (int i = 0; i < packageLimit; i++)
                 {
-                    if(config.IsCompressed)
-                        File.Delete(data[0]);
+                    if (data[i].Substring(0, 4) == "ftp:")
+                        await FTPDelete(data[i]);
                     else
-                        Directory.Delete(data[0], true);
-
-                    data.RemoveAt(0);
-                }
+                        LocalDelete();
+                }                    
             }
         }
+    }
+
+    public void LocalDelete()
+    {
+        if (config.IsCompressed)
+            File.Delete(data[0]);
+        else
+            Directory.Delete(data[0], true);
+
+        data.RemoveAt(0);
+    }
+
+    public async Task FTPDelete(string filepath)
+    {
+        FTPRegex regex = new();
+        FTPdata data = await regex.FTPregex(filepath);
+
+        FtpWebRequest ftpRequest = (FtpWebRequest)WebRequest.Create(data.server);  
+        ftpRequest.Credentials = new NetworkCredential(data.username, data.password);   
+        ftpRequest.Method = WebRequestMethods.Ftp.ListDirectory;
+
+        if (config.IsCompressed)
+        {
+            ftpRequest = (FtpWebRequest)WebRequest.Create(data.server + data.remoteFilePath);
+            ftpRequest.Credentials = new NetworkCredential(data.username, data.password);    
+            ftpRequest.Method = WebRequestMethods.Ftp.DeleteFile;                 
+
+            FtpWebResponse deleteResponse = (FtpWebResponse)ftpRequest.GetResponse();
+            await LogReport.AddReport("Delete File Complete. Status: " + deleteResponse.StatusDescription);
+        }
+        else
+        {
+            ftpRequest = (FtpWebRequest)WebRequest.Create(data.server + data.remoteFilePath);
+            ftpRequest.Credentials = new NetworkCredential(data.username, data.password);
+            ftpRequest.Method = WebRequestMethods.Ftp.RemoveDirectory;
+
+            FtpWebResponse deleteResponse = (FtpWebResponse)ftpRequest.GetResponse();
+            await LogReport.AddReport("Delete Directory Complete. Status: " + deleteResponse.StatusDescription);
+        }
+
+        this.data.RemoveAt(0);
     }
 }
