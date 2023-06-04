@@ -49,9 +49,9 @@ public abstract class BackupType
 
     }
 
-    public async virtual Task Backup()
+    public async Task Backup()
     {
-        await LogReport.AddReport("Backup started");        
+        await LogReport.AddReport("Backup started");
 
         using (StreamReader rd = new StreamReader(paths.SnapchotNumberPath))
         {

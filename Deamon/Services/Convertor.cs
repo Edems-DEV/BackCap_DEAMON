@@ -1,6 +1,7 @@
 ﻿using NCrontab;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,9 @@ public class Convertor
         TimeSpan timeUntilNextOccurrence = nextOccurrence - now;
         long milliseconds = (long)timeUntilNextOccurrence.TotalMilliseconds;
 
+        if (milliseconds == 0)
+            return 1000;
+
         return milliseconds;
     }
 
@@ -30,6 +34,9 @@ public class Convertor
         DateTime nextOccurrence = schedule.GetNextOccurrence(now);
         TimeSpan timeUntilNextOccurrence = nextOccurrence - now;
         long milliseconds = (long)timeUntilNextOccurrence.TotalMilliseconds;
+
+        if (milliseconds == 0)
+            return 1000;
 
         return milliseconds;
     }

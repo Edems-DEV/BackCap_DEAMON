@@ -72,12 +72,19 @@ public class Retencion
 
     public void LocalDelete()
     {
-        if (config.IsCompressed)
-            File.Delete(data[0]);
-        else
-            Directory.Delete(data[0], true);
+        try
+        {
+            if (config.IsCompressed)
+                File.Delete(data[0]);
+            else
+                Directory.Delete(data[0], true);
 
-        data.RemoveAt(0);
+            data.RemoveAt(0);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Could not delete non-existent file");
+        }
     }
 
     public async Task FTPDelete(string filepath)
