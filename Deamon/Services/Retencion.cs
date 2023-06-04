@@ -96,7 +96,7 @@ public class Retencion
             ftpRequest.Method = WebRequestMethods.Ftp.DeleteFile;                 
 
             FtpWebResponse deleteResponse = (FtpWebResponse)ftpRequest.GetResponse();
-            await LogReport.AddReport("Delete File Complete. Status: " + deleteResponse.StatusDescription);
+            await LogReport.AddReport("Delete completed: " + deleteResponse.StatusDescription);
         }
         else
         {
@@ -105,7 +105,7 @@ public class Retencion
             ftpRequest.Method = WebRequestMethods.Ftp.RemoveDirectory;
 
             FtpWebResponse deleteResponse = (FtpWebResponse)ftpRequest.GetResponse();
-            await LogReport.AddReport("Delete Directory Complete. Status: " + deleteResponse.StatusDescription);
+            await LogReport.AddReport("Delete completed:: " + deleteResponse.StatusDescription);
         }
 
         this.data.RemoveAt(0);

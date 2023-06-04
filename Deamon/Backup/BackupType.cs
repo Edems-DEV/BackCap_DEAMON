@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -76,7 +77,6 @@ public abstract class BackupType
 
         foreach (Destination destiantion in config.Destinations)
         {
-            //TODO - bude ftp server součástí filepath ? (asi jo - kod je stím že ano)
             string filepath = Path.Combine(destiantion.DestPath, @$"backup_{DateTime.Now:yyyy_MM_dd_HHmmss}");
             string ZIPfilepath = filepath + ".zip";
                 
@@ -250,14 +250,11 @@ public abstract class BackupType
 
         try
         {
-            if (source.Path.Substring(0, 4) == "ftp:") //TODO neotestovano
-            {
-                FTPRegex regex = new();
+            FTPRegex regex = new();
+            data = await regex.FTPregex(filepath);
 
-                data = await regex.FTPregex(filepath);
-            }
-
-            FtpWebRequest ftpRequest = (FtpWebRequest)WebRequest.Create(data.server);
+            //pro budoucí
+            FtpWebRequest ftpRequest = (FtpWebRequest)WebRequest.Create(data.server);    
             ftpRequest.Credentials = new NetworkCredential(data.username, data.password);
             ftpRequest.Method = WebRequestMethods.Ftp.ListDirectory;
 
@@ -276,16 +273,18 @@ public abstract class BackupType
                 foreach (var item in different)
                 {
                     string result = item.Remove(0, source.Path.Length);
+                    if (result != null)
+                        result = result.Replace("\\", "/");
                     string destpath = filepath + result;
 
-                    FtpWebRequest ftpRequestItemExists = (FtpWebRequest)WebRequest.Create(data.server + item);
+                    FtpWebRequest ftpRequestItemExists = (FtpWebRequest)WebRequest.Create(data.server + result);
                     ftpRequestItemExists.Credentials = new NetworkCredential(data.username, data.password);
                     ftpRequestItemExists.Method = WebRequestMethods.Ftp.GetDateTimestamp;
 
                     try
                     {
-                        FtpWebResponse ftpResponseItemExists = (FtpWebResponse)ftpRequestItemExists.GetResponse(); //tady na tom to kdyžtak spadne
-                                                                                                                   // Item exist?
+                        FtpWebResponse ftpResponseItemExists = (FtpWebResponse)ftpRequestItemExists.GetResponse(); 
+                        // Item exist?
 
                         ftpRequest = (FtpWebRequest)WebRequest.Create(data.server + item);
                         ftpRequest.Credentials = new NetworkCredential(data.username, data.password);
@@ -312,20 +311,20 @@ public abstract class BackupType
                             requestStream.Close();
 
                             uploadResponse = (FtpWebResponse)ftpRequest.GetResponse();
-                            await LogReport.AddReport("Upload File Complete. Status: " + uploadResponse.StatusDescription);
+                            await LogReport.AddReport("Upload complted: " + uploadResponse.StatusDescription);
                         }
                         else
                         {
-                            await LogReport.AddReport("An error occurred: " + ex.Message);
+                            await LogReport.AddReport(ex.Message);
                         }
                         ftpResponseItemExists.Close();
                     }
                 }
             }
         }
-        catch (Exception x)
+        catch (Exception ex)
         {
-            LogReport.AddReport(x.Message);
+            LogReport.AddReport(ex.Message);
         }       
     }    
 }

@@ -14,13 +14,13 @@ public class FTPRegex
         Regex regex = new Regex(@"^ftp://(?<username>\w+):(?<password>\w+)@(?<server>[\w.-]+)/(?<remoteFilePath>.+)$");
         Match match = regex.Match(filepath);
 
-        if (match.Success)
+        if (!match.Success)
             throw new Exception("Invalid FTP URL format.");
 
         FTPdata data;
 
         string server = "ftp://" + match.Groups["server"].Value;
-        string remoteFilePath = match.Groups["remoteFilePath"].Value;
+        string remoteFilePath = match.Groups["remoteFilePath"].Value);
         string username = match.Groups["username"].Value;
         string password = match.Groups["password"].Value;
 
