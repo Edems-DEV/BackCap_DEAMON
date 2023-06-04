@@ -81,7 +81,7 @@ public abstract class BackupType
             string ZIPfilepath = filepath + ".zip";
                 
             Retencion retencion = new Retencion(config.Id, destiantion.Id, config.Retention, config.PackageSize,config);
-            retencion.ReadRetencion();
+            await retencion.ReadRetencion();
 
             foreach (Sources source in config.Sources)
             {
@@ -267,7 +267,7 @@ public abstract class BackupType
             {
                 ftpRequest = (FtpWebRequest)WebRequest.Create(filepath);
                 ftpRequest.Credentials = new NetworkCredential(data.username, data.password);
-                ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
+                ftpRequest.Method = WebRequestMethods.Ftp.MakeDirectory;
 
                 uploadResponse = (FtpWebResponse)ftpRequest.GetResponse();
             }
@@ -289,7 +289,7 @@ public abstract class BackupType
 
                         ftpRequest = (FtpWebRequest)WebRequest.Create(data.server + item);
                         ftpRequest.Credentials = new NetworkCredential(data.username, data.password);
-                        ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
+                        ftpRequest.Method = WebRequestMethods.Ftp.MakeDirectory;
 
                         uploadResponse = (FtpWebResponse)ftpRequest.GetResponse();
 
