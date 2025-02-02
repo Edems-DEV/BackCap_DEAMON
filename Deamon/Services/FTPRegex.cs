@@ -20,7 +20,7 @@ public class FTPRegex
         FTPdata data;
 
         string server = "ftp://" + match.Groups["server"].Value;
-        string remoteFilePath = match.Groups["remoteFilePath"].Value);
+        string remoteFilePath = match.Groups["remoteFilePath"].Value;
         string username = match.Groups["username"].Value;
         string password = match.Groups["password"].Value;
 

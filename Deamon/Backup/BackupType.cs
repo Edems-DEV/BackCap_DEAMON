@@ -232,7 +232,8 @@ public abstract class BackupType
                 {
                     try
                     {
-                        File.Copy(item, destpath);
+                        Directory.CreateDirectory(Path.GetDirectoryName(destpath));
+                        File.Copy(item, destpath, true);
                     }
                     catch (Exception x)
                     {
